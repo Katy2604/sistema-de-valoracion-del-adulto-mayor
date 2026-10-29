@@ -13,7 +13,7 @@ public class Dbconnection {
     private static final String URL      = "jdbc:mysql://localhost:3306/valoracion_adulto_mayor"
                                          + "?useSSL=false&serverTimezone=America/Mexico_City&allowPublicKeyRetrieval=true";
     private static final String USER     = "root";       
-    private static final String PASSWORD = "duki4wins"; 
+    private static final String PASSWORD = "si55."; 
  
     public static Connection getConnection() throws SQLException, ClassNotFoundException {
         Class.forName("com.mysql.cj.jdbc.Driver");

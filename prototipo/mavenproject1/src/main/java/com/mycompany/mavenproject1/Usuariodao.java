@@ -33,7 +33,9 @@ public class Usuariodao {
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
-    e.printStackTrace();
+            System.out.println("===== ERROR AL AUTENTICAR =====");
+            e.printStackTrace();
+            throw e;
         }
         return null;
     }

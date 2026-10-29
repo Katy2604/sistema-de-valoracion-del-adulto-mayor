@@ -151,7 +151,7 @@ public void insertarPatronVida(PatronVida p) {
     String sql =
         "INSERT INTO patron_vida (" +
         "valoracion_id,relacion_familiar,ingreso_economico,dependencia_economica," +
-        "estado_nutricional,cabello,mucosas,piel,labios,encias," +
+        "estado_nutricional,peso,talla,imc,cabello,mucosas,piel,labios,encias," +
         "nariz_orejas,unas,sistema_oseo,estado_general," +
         "kg_subidos,kg_perdidos,dentadura,guisa_alimentos," +
         "problema_cavidad_oral,problema_dental_comer,problema_digestion," +
@@ -162,6 +162,7 @@ public void insertarPatronVida(PatronVida p) {
         "ON DUPLICATE KEY UPDATE " +
         "relacion_familiar=VALUES(relacion_familiar),ingreso_economico=VALUES(ingreso_economico)," +
         "dependencia_economica=VALUES(dependencia_economica),estado_nutricional=VALUES(estado_nutricional)," +
+        "peso=VALUES(peso), talla=VALUES(talla), imc=VALUES(imc)," +
         "cabello=VALUES(cabello),mucosas=VALUES(mucosas),piel=VALUES(piel)," +
         "labios=VALUES(labios),encias=VALUES(encias),nariz_orejas=VALUES(nariz_orejas)," +
         "unas=VALUES(unas),sistema_oseo=VALUES(sistema_oseo),estado_general=VALUES(estado_general)," +
@@ -184,9 +185,9 @@ public void insertarPatronVida(PatronVida p) {
         ps.setString(4,  nullIfBlank(p.getDependenciaEconomica()));
         ps.setString(5,  nullIfBlank(p.getEstadoNutricional()));
         ps.setString(6,  nullIfBlank(p.getCabello()));
-        ps.setString(7,  nullIfBlank(p.getMucosas()));
-        ps.setString(8,  nullIfBlank(p.getPiel()));
-        ps.setString(9,  nullIfBlank(p.getLabios()));
+        ps.setString(7, nullIfBlank(p.getMucosas()));
+        ps.setString(8, nullIfBlank(p.getPiel()));
+        ps.setString(9, nullIfBlank(p.getLabios()));
         ps.setString(10, nullIfBlank(p.getEncias()));
         ps.setString(11, nullIfBlank(p.getNarizOrejas()));
         ps.setString(12, nullIfBlank(p.getUnas()));
@@ -294,6 +295,9 @@ public void insertarPatronVida(PatronVida p) {
                 out.put("ingresoEconomico",    rs.getString("ingreso_economico"));
                 out.put("dependenciaEconomica",rs.getString("dependencia_economica"));
                 out.put("estadoNutricional",   rs.getString("estado_nutricional"));
+                out.put("peso", rs.getString("peso"));
+                out.put("talla", rs.getString("talla"));
+                out.put("cabello", rs.getString("imc"));
                 out.put("cabello",  rs.getString("cabello"));
                 out.put("mucosas",  rs.getString("mucosas"));
                 out.put("piel",     rs.getString("piel"));

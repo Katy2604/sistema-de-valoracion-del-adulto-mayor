@@ -48,6 +48,10 @@ function recolectarSeccion1() {
         dependenciaEconomica: val('dependenciaEconomica'),
 
         estadoNutricional: radio('nutricional'),
+        
+        peso: val('peso'),
+        talla: val('talla'),
+        imc: val('imc'),
 
         cabello: val('cabello'),
         mucosas: val('mucosas'),
@@ -286,6 +290,9 @@ async function cargarDatosGuardados() {
     setVal('ingresoEconomico',     json.ingresoEconomico);
     setVal('dependenciaEconomica', json.dependenciaEconomica);
     setRadio('nutricional',        json.estadoNutricional);
+    setVal('peso', json.peso);
+    setVal('talla',json.talla);
+    setVal('imc', json.imc);
     setVal('cabello',      json.cabello);
     setVal('mucosas',      json.mucosas);
     setVal('piel',         json.piel);

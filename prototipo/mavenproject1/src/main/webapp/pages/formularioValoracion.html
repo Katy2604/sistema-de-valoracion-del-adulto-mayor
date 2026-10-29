@@ -913,15 +913,27 @@
         <div class="campo-grupo col-3">
           <div class="campo">
             <label>Peso (kg)</label>
-            <input type="number" placeholder="Ej. 65"/>
+            <input type="number" 
+                   id="peso"
+                   step="0.1"
+                   min="0"
+                   placeholder="Ej. 65"/>
           </div>
           <div class="campo">
             <label>Talla (mts)</label>
-            <input type="number" step="0.01" placeholder="Ej. 1.62"/>
+            <input type="number" 
+                   id="talla"
+                   step="0.01"
+                   min="0"
+                   placeholder="Ej. 1.62"/>
           </div>
           <div class="campo">
-            <label>IMC (%)</label>
-            <input type="number" step="0.1" placeholder="Calculado"/>
+            <label>IMC (km/m²)</label>
+            <input type="number" 
+                   id="imc"
+                   step="0.1"
+                   placeholder="Calculado"
+                   readonly/>
           </div>
         </div>
 
