@@ -72,7 +72,7 @@ public class Usuariodao {
  
     /** Actualiza nombre, correo y rol. Si contrasenaPlana no es vacía, también la actualiza */
     public void actualizar(Usuario u, String contrasenaPlana) throws SQLException, ClassNotFoundException {
-        boolean cambiarPass = contrasenaPlana != null && !contrasenaPlana.isBlank();
+        boolean cambiarPass = contrasenaPlana != null && !contrasenaPlana.trim().isEmpty();
  
         String sql = cambiarPass
             ? "UPDATE usuarios SET nombre=?, correo=?, rol=?, contrasena_hash=? WHERE id=?"

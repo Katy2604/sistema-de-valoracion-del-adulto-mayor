@@ -41,7 +41,7 @@ public class ValoracionesServlet extends HttpServlet {
             String vidParam = req.getParameter("valoracionId");
             int valoracionId = 0;
 
-            if (vidParam != null && !vidParam.isBlank()) {
+            if (vidParam != null && !vidParam.trim().isEmpty()) {
                 // Ya existe — solo actualizar paciente_datos
                 try { valoracionId = Integer.parseInt(vidParam.trim()); }
                 catch (NumberFormatException ignored) {}
@@ -76,7 +76,7 @@ public class ValoracionesServlet extends HttpServlet {
             p.setNombre(req.getParameter("nombrePaciente"));
 
             String edadStr = req.getParameter("edadPaciente");
-            if (edadStr != null && !edadStr.isBlank()) {
+            if (edadStr != null && !edadStr.trim().isEmpty()) {
                 try { p.setEdad(Integer.parseInt(edadStr.trim())); }
                 catch (NumberFormatException ignored) {}
             }
@@ -171,7 +171,7 @@ public class ValoracionesServlet extends HttpServlet {
 
     private java.util.Map<String, String> parseParams(String body) {
         java.util.Map<String, String> map = new java.util.LinkedHashMap<>();
-        if (body == null || body.isBlank()) return map;
+        if (body == null || body.trim().isEmpty()) return map;
         for (String par : body.split("&")) {
             String[] kv = par.split("=", 2);
             if (kv.length == 2) {

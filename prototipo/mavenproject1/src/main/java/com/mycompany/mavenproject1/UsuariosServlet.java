@@ -176,7 +176,7 @@ public class UsuariosServlet extends HttpServlet {
 
     private java.util.Map<String,String> parseParams(String body) {
         java.util.Map<String,String> map = new java.util.LinkedHashMap<>();
-        if (body == null || body.isBlank()) return map;
+        if (body == null || body.trim().isEmpty()) return map;
         for (String par : body.split("&")) {
             String[] kv = par.split("=", 2);
             if (kv.length == 2) {

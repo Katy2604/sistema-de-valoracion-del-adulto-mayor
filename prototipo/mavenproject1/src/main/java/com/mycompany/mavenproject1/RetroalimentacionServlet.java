@@ -44,7 +44,7 @@ public class RetroalimentacionServlet extends HttpServlet {
         String valoracionIdStr = req.getParameter("valoracionId");
         String comentario      = req.getParameter("comentario");
 
-        if (valoracionIdStr == null || comentario == null || comentario.isBlank()) {
+        if (valoracionIdStr == null || comentario == null || comentario.trim().isEmpty()) {
             res.setStatus(400);
             json.put("ok", false);
             json.put("mensaje", "Datos incompletos.");
