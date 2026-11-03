@@ -1,0 +1,11 @@
+.git
+.github
+**/target
+**/.netbeans
+**/nbproject/private
+**/*.log
+*.sql
+*.md
+diagramas/
+documentacion/
+minutas/
