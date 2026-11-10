@@ -247,21 +247,277 @@
     .error-msg { color: var(--rojo); font-size: 0.78rem; margin-top: 0.5rem; min-height: 1em; }
     .exito-msg { color: var(--verde); font-size: 0.78rem; margin-top: 0.5rem; min-height: 1em; }
 
-    /* ── Footer ── */
-    .footer {
-      background: var(--azul);
-      color: rgba(255,255,255,0.6);
-      text-align: center;
-      padding: 14px;
-      font-size: 0.72rem;
+    /* ─────────────────────────────────────────
+       DISEÑO RESPONSIVE - GESTIÓN DE USUARIOS
+       ───────────────────────────────────────── */
+
+    /* Evitar desbordamientos */
+    html,
+    body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
-    /* ── Responsive ── */
-    @media (max-width: 640px) {
-      .main { padding: 1rem; }
-      thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
-      .tabla-toolbar input { width: 100%; }
+    .main {
+      min-width: 0;
     }
+
+    /* Contenedor de tabla */
+    .tabla-card {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .tabla-scroll {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .tabla-scroll table {
+      min-width: 760px;
+    }
+
+    /* Acciones de cada usuario */
+    .acciones {
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* Tablet */
+    @media (max-width: 900px) {
+      .header {
+        height: auto;
+        min-height: 72px;
+        padding: 12px 1.2rem;
+        flex-wrap: wrap;
+      }
+
+      .header-textos {
+        flex: 1;
+        min-width: 180px;
+      }
+
+      .header-textos h1 {
+        font-size: 0.9rem;
+      }
+
+      .header-right {
+        gap: 0.6rem;
+      }
+
+      .main {
+        padding: 1.5rem;
+      }
+
+      .tabla-toolbar input {
+        flex: 1;
+        min-width: 180px;
+      }
+
+      .tabla-toolbar select {
+        flex: 1;
+        min-width: 150px;
+      }
+    }
+
+    /* Celulares */
+    @media (max-width: 640px) {
+      .header {
+        padding: 12px 1rem;
+        gap: 10px;
+      }
+
+      .logo-uaa {
+        width: 40px;
+        height: 40px;
+      }
+
+      .header-textos {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .header-textos h1 {
+        font-size: 0.78rem;
+        line-height: 1.3;
+      }
+
+      .header-textos p {
+        font-size: 0.62rem;
+        line-height: 1.3;
+      }
+
+      .header-right {
+        width: 100%;
+        margin-left: 0;
+        justify-content: space-between;
+      }
+
+      .badge-usuario {
+        font-size: 0.7rem;
+      }
+
+      .btn-cerrar {
+        padding: 7px 11px;
+        font-size: 0.72rem;
+      }
+
+      .main {
+        padding: 1rem 0.8rem;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 1rem;
+      }
+
+      .page-header h2 {
+        font-size: 1.15rem;
+      }
+
+      .page-header p {
+        font-size: 0.78rem;
+      }
+
+      .page-header .btn-primary {
+        width: 100%;
+      }
+
+      .btn-primary {
+        padding: 11px 14px;
+        font-size: 0.8rem;
+      }
+
+      .tabla-card {
+        border-radius: 9px;
+      }
+
+      .tabla-toolbar {
+        padding: 0.8rem;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .tabla-toolbar input,
+      .tabla-toolbar select {
+        width: 100%;
+        min-width: 0;
+        padding: 10px;
+        font-size: 0.8rem;
+      }
+
+      .tabla-scroll {
+        border-radius: 0 0 9px 9px;
+      }
+
+      .tabla-scroll table {
+        min-width: 760px;
+      }
+
+      thead th,
+      tbody td {
+        padding: 10px;
+        font-size: 0.75rem;
+      }
+
+      .acciones {
+        flex-wrap: nowrap;
+      }
+
+      .btn-editar,
+      .btn-desactivar,
+      .btn-activar {
+        padding: 7px 9px;
+        font-size: 0.7rem;
+        white-space: nowrap;
+      }
+
+      .badge-rol,
+      .badge-estado {
+        font-size: 0.68rem;
+      }
+
+      .footer {
+        padding: 12px 10px;
+        font-size: 0.65rem;
+        line-height: 1.5;
+      }
+
+      /* Modal */
+      .modal-overlay {
+        padding: 12px;
+        align-items: center;
+        overflow-y: auto;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 440px;
+        max-height: calc(100dvh - 24px);
+        overflow-y: auto;
+        padding: 1.3rem;
+        border-radius: 12px;
+      }
+
+      .modal h3 {
+        font-size: 1rem;
+        margin-bottom: 1rem;
+      }
+
+      .campo {
+        margin-bottom: 0.85rem;
+      }
+
+      .campo input,
+      .campo select {
+        padding: 11px;
+        font-size: 0.85rem;
+      }
+
+      .modal-acciones {
+        flex-direction: column-reverse;
+        gap: 8px;
+      }
+
+      .modal-acciones button {
+        width: 100%;
+        padding: 11px;
+      }
+    }
+
+    /* Celulares pequeños */
+    @media (max-width: 380px) {
+      .main {
+        padding: 0.8rem 0.6rem;
+      }
+
+      .header-textos h1 {
+        font-size: 0.7rem;
+      }
+
+      .header-textos p {
+        font-size: 0.57rem;
+      }
+
+      .logo-uaa {
+        width: 34px;
+        height: 34px;
+      }
+
+      .page-header h2 {
+        font-size: 1.05rem;
+      }
+
+      .modal {
+        padding: 1rem;
+      }
+    }
+
   </style>
 </head>
 <body>
@@ -305,7 +561,8 @@
       </select>
     </div>
 
-    <table id="tablaUsuarios">
+    <div class="tabla-scroll">
+      <table id="tablaUsuarios">
       <thead>
         <tr>
           <th>#</th>
@@ -319,7 +576,8 @@
       <tbody id="cuerpoTabla">
         <tr><td colspan="6" class="tabla-vacia">Cargando usuarios...</td></tr>
       </tbody>
-    </table>
+      </table>
+    </div>
   </div>
 
   <p id="msgGlobal" class="exito-msg" style="margin-top:0.8rem; text-align:center;"></p>

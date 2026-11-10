@@ -17,7 +17,7 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,N
 -- -----------------------------------------------------
 -- Schema valoracion_adulto_mayor
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `valoracion_adulto_mayor` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
+-- CREATE SCHEMA IF NOT EXISTS `valoracion_adulto_mayor` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ;
 USE `valoracion_adulto_mayor` ;
 
 -- -----------------------------------------------------

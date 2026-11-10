@@ -13,6 +13,361 @@
   <script src="../scripts/filtros.js" defer></script>
   <script src="../scripts/helpers.js" defer></script>
 <script defer src="../scripts/init.js"></script>
+
+  <!-- ==================================================
+       DISEÑO RESPONSIVO DEL FORMULARIO SVAM
+       Solo modifica la presentación; conserva los campos
+       y las funciones JavaScript originales.
+  ================================================== -->
+  <style>
+    /* Ajustes generales */
+    #formulario,
+    #formulario * {
+      box-sizing: border-box;
+    }
+
+    #formulario {
+      width: 100%;
+      min-width: 0;
+      overflow-x: hidden;
+      padding-bottom: 32px;
+    }
+
+    #formulario img,
+    #formulario svg {
+      max-width: 100%;
+    }
+
+    #formulario button,
+    #formulario input,
+    #formulario select,
+    #formulario textarea {
+      font: inherit;
+    }
+
+    #formulario input,
+    #formulario select,
+    #formulario textarea {
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    /* Encabezado */
+    #formulario .header {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      padding: 22px clamp(16px, 4vw, 42px);
+    }
+
+    #formulario .logo-uaa {
+      flex: 0 0 auto;
+      width: 76px;
+      height: 76px;
+    }
+
+    #formulario .header-textos {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    #formulario .header-textos h1 {
+      margin: 0 0 6px;
+      line-height: 1.2;
+      overflow-wrap: anywhere;
+    }
+
+    #formulario .header-textos p {
+      margin: 0;
+    }
+
+    #formulario .header-right {
+      flex: 0 0 auto;
+    }
+
+    #formulario .btn-cerrar {
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    /* Barra de avance */
+    #formulario .barra-progreso {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 18px;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: thin;
+    }
+
+    #formulario .paso {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    #formulario .paso-num {
+      flex: 0 0 auto;
+    }
+
+    #formulario .paso-sep {
+      flex: 0 0 auto;
+    }
+
+    /* Tarjeta y contenido */
+    #formulario .form-container {
+      width: min(100% - 32px, 960px) !important;
+      max-width: 960px !important;
+      margin: 24px auto;
+    }
+
+    #formulario .form-card {
+      width: 100%;
+      min-width: 0;
+      padding: clamp(18px, 3vw, 34px);
+      border-radius: 16px;
+    }
+
+    #formulario .seccion-form {
+      min-width: 0;
+    }
+
+    #formulario .seccion-form h3 {
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    /* Campos */
+    #formulario .campo-grupo {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      width: 100%;
+    }
+
+    #formulario .campo {
+      min-width: 0;
+      width: 100%;
+    }
+
+    #formulario .campo input,
+    #formulario .campo select,
+    #formulario .campo textarea,
+    #formulario input[type="text"],
+    #formulario input[type="number"],
+    #formulario input[type="date"],
+    #formulario input[type="email"],
+    #formulario input[type="tel"],
+    #formulario select,
+    #formulario textarea {
+      width: 100%;
+      min-width: 0;
+    }
+
+    #formulario textarea {
+      resize: vertical;
+    }
+
+    #formulario label {
+      overflow-wrap: anywhere;
+    }
+
+    /* Opciones, casillas y preguntas */
+    #formulario .casillas-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    #formulario .pregunta,
+    #formulario .pregunta-item,
+    #formulario .opcion,
+    #formulario .opcion-item {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    #formulario .nav-secciones {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      width: 100%;
+    }
+
+    #formulario .nav-secciones button {
+      max-width: 100%;
+      cursor: pointer;
+    }
+
+    #formulario .indicador-seccion {
+      text-align: center;
+    }
+
+    /* Tablas: permiten desplazamiento horizontal sin cortar columnas */
+    #formulario table {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      border-collapse: collapse;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #formulario table th,
+    #formulario table td {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    #formulario .tabla-responsive,
+    #formulario .tabla-contenedor {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* Resultados y puntajes */
+    #formulario .puntaje-caja {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      width: 100%;
+    }
+
+    #formulario .puntaje-caja > div {
+      min-width: 0;
+    }
+
+    /* Pantallas medianas */
+    @media (max-width: 900px) {
+      #formulario .header {
+        padding: 20px;
+      }
+
+      #formulario .barra-progreso {
+        justify-content: flex-start;
+      }
+
+      #formulario .form-container {
+        width: calc(100% - 28px) !important;
+      }
+    }
+
+    /* Tabletas y celulares */
+    @media (max-width: 680px) {
+      #formulario .header {
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 18px 16px;
+      }
+
+      #formulario .logo-uaa {
+        width: 58px;
+        height: 58px;
+      }
+
+      #formulario .header-textos {
+        flex: 1 1 calc(100% - 80px);
+      }
+
+      #formulario .header-right {
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      #formulario .barra-progreso {
+        justify-content: flex-start;
+        padding: 12px 14px;
+        gap: 7px;
+      }
+
+      #formulario .form-container {
+        width: calc(100% - 20px) !important;
+        margin: 14px auto;
+      }
+
+      #formulario .form-card {
+        padding: 18px 14px;
+        border-radius: 12px;
+      }
+
+      #formulario .campo-grupo {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      #formulario .casillas-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      #formulario .nav-secciones {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      #formulario .nav-secciones button {
+        width: 100%;
+      }
+
+      #formulario .indicador-seccion {
+        order: -1;
+        width: 100%;
+      }
+
+      #formulario .puntaje-caja {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      #formulario .puntaje-caja > div {
+        width: 100%;
+        text-align: left !important;
+      }
+    }
+
+    /* Celulares pequeños */
+    @media (max-width: 380px) {
+      #formulario .header {
+        padding: 14px 12px;
+      }
+
+      #formulario .logo-uaa {
+        width: 50px;
+        height: 50px;
+      }
+
+      #formulario .header-textos h1 {
+        font-size: 1.15rem;
+      }
+
+      #formulario .form-container {
+        width: calc(100% - 12px) !important;
+      }
+
+      #formulario .form-card {
+        padding: 14px 10px;
+      }
+
+      #formulario .barra-progreso {
+        font-size: 0.78rem;
+      }
+    }
+  </style>
+
 </head>
 <body>
 
@@ -1851,3 +2206,6 @@
     </div><!-- /form-card -->
   </div><!-- /form-container -->
 </div><!-- /formulario -->
+
+</body>
+</html>

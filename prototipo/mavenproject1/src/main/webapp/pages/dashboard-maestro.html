@@ -1,131 +1,731 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
   <title>Dashboard Maestro — SVAM UAA</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+
   <link rel="stylesheet" href="../styles/estilos.css">
   <script src="../scripts/navegacion.js" defer></script>
+
   <style>
-  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:200; align-items:center; justify-content:center; }
-  .modal-overlay.activo { display:flex; }
-  .modal { background:#fff; border-radius:14px; padding:2rem; width:100%; box-shadow:0 8px 40px rgba(0,0,0,0.2); }
-  .btn-cancelar { background:#f4f6fa; border:1px solid #dde2ee; color:#555; padding:9px 18px; border-radius:8px; font-family:'Montserrat',sans-serif; font-weight:600; font-size:0.83rem; cursor:pointer; }
-  .btn-primary  { background:#003087; color:#fff; border:none; padding:9px 18px; border-radius:8px; font-family:'Montserrat',sans-serif; font-weight:600; font-size:0.83rem; cursor:pointer; }
-</style>
+    /* =====================================
+       ESTILOS ORIGINALES DEL MODAL
+    ===================================== */
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.activo {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      padding: 2rem;
+      width: 100%;
+      max-width: 500px;
+      max-height: calc(100vh - 40px);
+      overflow-y: auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+    }
+
+    .btn-cancelar {
+      background: #f4f6fa;
+      border: 1px solid #dde2ee;
+      color: #555;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 0.83rem;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #003087;
+      color: #fff;
+      border: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 600;
+      font-size: 0.83rem;
+      cursor: pointer;
+    }
+
+    /* =====================================
+       RESPONSIVE - DASHBOARD MAESTRO
+    ===================================== */
+
+    #dashboard {
+      width: 100%;
+      min-height: 100vh;
+      min-height: 100svh;
+    }
+
+    #dashboard *,
+    #dashboard *::before,
+    #dashboard *::after {
+      box-sizing: border-box;
+    }
+
+    /* Encabezado */
+    #dashboard .header {
+      width: 100%;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    #dashboard .logo-uaa {
+      flex-shrink: 0;
+      max-width: 75px;
+      height: auto;
+    }
+
+    #dashboard .header-textos {
+      flex: 1;
+      min-width: 180px;
+    }
+
+    #dashboard .header-textos h1 {
+      line-height: 1.3;
+    }
+
+    #dashboard .header-right {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Contenido */
+    #dashboard .dashboard-body {
+      width: 100%;
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 28px 30px;
+    }
+
+    /* Bienvenida */
+    #dashboard .bienvenida {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    #dashboard .bienvenida > div {
+      flex: 1;
+      min-width: 0;
+    }
+
+    #dashboard .bienvenida h2 {
+      overflow-wrap: break-word;
+    }
+
+    /* Estadísticas */
+    #dashboard .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 20px;
+      width: 100%;
+    }
+
+    #dashboard .stat-card {
+      min-width: 0;
+    }
+
+    #dashboard .numero {
+      overflow-wrap: anywhere;
+    }
+
+    /* Filtros */
+    #dashboard .filtros-valoraciones {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    #dashboard .filtros-valoraciones select {
+      max-width: 100%;
+      min-width: 180px;
+    }
+
+    /* Tabla */
+    #dashboard .seccion-tabla {
+      width: 100%;
+      min-width: 0;
+    }
+
+    #dashboard .tabla-scroll {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    #dashboard .tabla-scroll table {
+      width: 100%;
+      min-width: 950px;
+      border-collapse: collapse;
+    }
+
+    #dashboard .tabla-scroll th,
+    #dashboard .tabla-scroll td {
+      white-space: normal;
+      overflow-wrap: break-word;
+      vertical-align: middle;
+    }
+
+    #dashboard .tabla-scroll td button {
+      margin-bottom: 4px;
+      white-space: nowrap;
+    }
+
+    /* Pie */
+    #dashboard .footer {
+      width: 100%;
+      text-align: center;
+      line-height: 1.6;
+      overflow-wrap: break-word;
+    }
+
+    /* =====================================
+       TABLETS Y LAPTOPS PEQUEÑAS
+    ===================================== */
+
+    @media screen and (max-width: 1024px) {
+
+      #dashboard .header {
+        padding: 18px 22px;
+      }
+
+      #dashboard .logo-uaa {
+        width: 60px;
+      }
+
+      #dashboard .header-textos h1 {
+        font-size: 21px;
+      }
+
+      #dashboard .header-textos p {
+        font-size: 12px;
+      }
+
+      #dashboard .dashboard-body {
+        padding: 24px 20px;
+      }
+
+      #dashboard .stats-grid {
+        gap: 14px;
+      }
+    }
+
+    /* =====================================
+       TABLETS VERTICALES
+    ===================================== */
+
+    @media screen and (max-width: 768px) {
+
+      #dashboard .header {
+        padding: 16px 18px;
+        gap: 12px;
+      }
+
+      #dashboard .logo-uaa {
+        width: 52px;
+      }
+
+      #dashboard .header-textos {
+        min-width: 150px;
+      }
+
+      #dashboard .header-textos h1 {
+        font-size: 18px;
+      }
+
+      #dashboard .header-textos p {
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      #dashboard .header-right {
+        margin-left: auto;
+      }
+
+      #dashboard .dashboard-body {
+        padding: 22px 16px;
+      }
+
+      #dashboard .bienvenida h2 {
+        font-size: 22px;
+      }
+
+      #dashboard .stats-grid {
+        gap: 12px;
+      }
+
+      #dashboard .stat-card {
+        padding: 16px 10px;
+      }
+
+      #dashboard .numero {
+        font-size: 27px;
+      }
+
+      #dashboard .etiqueta {
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      #dashboard .seccion-tabla {
+        overflow: hidden;
+      }
+
+      #dashboard .footer {
+        padding: 16px;
+        font-size: 12px;
+      }
+    }
+
+    /* =====================================
+       CELULARES
+    ===================================== */
+
+    @media screen and (max-width: 600px) {
+
+      #dashboard .header {
+        padding: 14px;
+        gap: 10px;
+      }
+
+      #dashboard .logo-uaa {
+        width: 45px;
+      }
+
+      #dashboard .header-textos {
+        min-width: 0;
+      }
+
+      #dashboard .header-textos h1 {
+        font-size: 16px;
+      }
+
+      #dashboard .header-textos p {
+        font-size: 10px;
+      }
+
+      #dashboard .header-right {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 0;
+      }
+
+      #dashboard .badge-usuario {
+        font-size: 12px;
+      }
+
+      #dashboard .btn-cerrar {
+        font-size: 12px;
+      }
+
+      #dashboard .dashboard-body {
+        padding: 18px 12px;
+      }
+
+      #dashboard .bienvenida {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      #dashboard .bienvenida h2 {
+        font-size: 21px;
+      }
+
+      #dashboard .bienvenida p {
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      /* Estadísticas */
+      #dashboard .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      #dashboard .stat-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 15px 18px;
+      }
+
+      #dashboard .numero {
+        font-size: 26px;
+      }
+
+      #dashboard .etiqueta {
+        text-align: right;
+        font-size: 12px;
+      }
+
+      /* Sección de tabla */
+      #dashboard .seccion-tabla {
+        padding: 16px 12px;
+        border-radius: 10px;
+      }
+
+      #dashboard .seccion-tabla h3 {
+        font-size: 17px;
+      }
+
+      /* Filtros apilados */
+      #dashboard .filtros-valoraciones {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      #dashboard .filtros-valoraciones select {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+        font-size: 13px !important;
+      }
+
+      /* Tabla desplazable */
+      #dashboard .tabla-scroll {
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+
+      #dashboard .tabla-scroll table {
+        min-width: 950px;
+      }
+
+      #dashboard .tabla-scroll th,
+      #dashboard .tabla-scroll td {
+        padding: 11px 10px;
+        font-size: 12px;
+      }
+
+      #dashboard .footer {
+        padding: 16px 12px;
+        font-size: 10px;
+      }
+    }
+
+    /* =====================================
+       CELULARES PEQUEÑOS
+    ===================================== */
+
+    @media screen and (max-width: 380px) {
+
+      #dashboard .header {
+        padding: 12px;
+      }
+
+      #dashboard .logo-uaa {
+        width: 40px;
+      }
+
+      #dashboard .header-textos h1 {
+        font-size: 14px;
+      }
+
+      #dashboard .header-textos p {
+        font-size: 9px;
+      }
+
+      #dashboard .dashboard-body {
+        padding: 14px 9px;
+      }
+
+      #dashboard .bienvenida h2 {
+        font-size: 19px;
+      }
+
+      #dashboard .stat-card {
+        padding: 13px;
+      }
+
+      #dashboard .numero {
+        font-size: 23px;
+      }
+
+      #dashboard .etiqueta {
+        font-size: 11px;
+      }
+
+      #dashboard .seccion-tabla {
+        padding: 13px 9px;
+      }
+    }
+
+    /* =====================================
+       MODAL RESPONSIVE
+    ===================================== */
+
+    @media screen and (max-width: 600px) {
+
+      .modal-overlay {
+        align-items: center;
+        padding: 12px;
+      }
+
+      .modal {
+        width: 100%;
+        max-width: 100%;
+        padding: 20px 16px;
+        border-radius: 12px;
+      }
+
+      .modal h3 {
+        font-size: 17px;
+        line-height: 1.4;
+      }
+
+      .modal textarea {
+        font-size: 14px !important;
+        min-height: 120px;
+      }
+
+      .modal .acciones-modal {
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 10px;
+      }
+
+      .modal .acciones-modal button {
+        width: 100%;
+        min-height: 44px;
+      }
+    }
+
+  </style>
 </head>
+
 <body>
 
 <div id="dashboard" class="pantalla activa">
 
+  <!-- ENCABEZADO -->
   <div class="header">
+
     <svg class="logo-uaa" viewBox="0 0 100 100" fill="none">
-      <circle cx="50" cy="50" r="48" fill="white" fill-opacity="0.15" stroke="#C8962A" stroke-width="2"/>
-      <text x="50" y="44" text-anchor="middle" fill="white" font-family="Montserrat,sans-serif" font-size="18" font-weight="bold">UAA</text>
-      <text x="50" y="62" text-anchor="middle" fill="#C8962A" font-family="Montserrat,sans-serif" font-size="7.5" font-weight="600">ENFERMERÍA</text>
+      <circle cx="50" cy="50" r="48"
+        fill="white"
+        fill-opacity="0.15"
+        stroke="#C8962A"
+        stroke-width="2"/>
+
+      <text x="50" y="44"
+        text-anchor="middle"
+        fill="white"
+        font-family="Montserrat,sans-serif"
+        font-size="18"
+        font-weight="bold">UAA</text>
+
+      <text x="50" y="62"
+        text-anchor="middle"
+        fill="#C8962A"
+        font-family="Montserrat,sans-serif"
+        font-size="7.5"
+        font-weight="600">ENFERMERÍA</text>
     </svg>
+
     <div class="header-textos">
       <h1>Sistema de Valoración del Adulto Mayor</h1>
       <p>Centro de Ciencias de la Salud — Departamento de Enfermería</p>
     </div>
+
     <div class="header-right">
       <span class="badge-usuario">Maestro</span>
-      <button class="btn-cerrar" onclick="cerrarSesion()">Cerrar sesión</button>
+      <button class="btn-cerrar" onclick="cerrarSesion()">
+        Cerrar sesión
+      </button>
     </div>
+
   </div>
 
+  <!-- CONTENIDO PRINCIPAL -->
   <div class="dashboard-body">
 
+    <!-- BIENVENIDA -->
     <div class="bienvenida">
       <div>
         <h2 id="saludo">Bienvenido/a</h2>
-        <p>Semestre en curso: Enero–Junio 2026 &nbsp;|&nbsp; 7° Semestre Enfermería</p>
+        <p>
+          Semestre en curso: Enero–Junio 2026
+          &nbsp;|&nbsp;
+          7° Semestre Enfermería
+        </p>
       </div>
     </div>
 
-    <!-- Estadísticas -->
+    <!-- ESTADÍSTICAS -->
     <div class="stats-grid">
+
       <div class="stat-card">
         <div class="numero" id="statTotal">—</div>
         <div class="etiqueta">Total valoraciones</div>
       </div>
+
       <div class="stat-card verde">
         <div class="numero" id="statCompletas">—</div>
         <div class="etiqueta">Completadas</div>
       </div>
+
       <div class="stat-card dorado">
         <div class="numero" id="statSinRetro">—</div>
         <div class="etiqueta">Sin retroalimentación</div>
       </div>
+
     </div>
 
-    <!-- Filtro por alumno -->
+    <!-- VALORACIONES Y FILTROS -->
     <div class="seccion-tabla">
+
       <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem; margin-bottom:1rem;">
-        <h3 style="margin:0;">📋 Valoraciones de estudiantes</h3>
-        <div style="display:flex; gap:0.6rem; align-items:center; flex-wrap:wrap;">
+
+        <h3 style="margin:0;">
+          📋 Valoraciones de estudiantes
+        </h3>
+
+        <div class="filtros-valoraciones">
+
           <select id="filtroAlumno" onchange="filtrar()"
-                  style="border:1px solid #dde2ee; border-radius:6px; padding:7px 10px; font-size:0.83rem; font-family:'Open Sans',sans-serif;">
+            style="border:1px solid #dde2ee; border-radius:6px; padding:7px 10px; font-size:0.83rem; font-family:'Open Sans',sans-serif;">
+
             <option value="">Todos los estudiantes</option>
+
           </select>
+
           <select id="filtroEstado" onchange="filtrar()"
-                  style="border:1px solid #dde2ee; border-radius:6px; padding:7px 10px; font-size:0.83rem; font-family:'Open Sans',sans-serif;">
+            style="border:1px solid #dde2ee; border-radius:6px; padding:7px 10px; font-size:0.83rem; font-family:'Open Sans',sans-serif;">
+
             <option value="">Todos los estados</option>
             <option value="1">Completadas</option>
             <option value="0">En progreso</option>
+
           </select>
+
         </div>
+
       </div>
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Estudiante</th>
-            <th>Paciente</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>Retroalimentación</th>
-            <th>Acción</th>
-          </tr>
-        </thead>
-        <tbody id="tablaValoraciones">
-          <tr><td colspan="7" style="text-align:center; color:#999; padding:2rem;">Cargando...</td></tr>
-        </tbody>
-      </table>
+      <!-- TABLA -->
+      <div class="tabla-scroll">
+
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Estudiante</th>
+              <th>Paciente</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Retroalimentación</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+
+          <tbody id="tablaValoraciones">
+            <tr>
+              <td colspan="7"
+                style="text-align:center; color:#999; padding:2rem;">
+                Cargando...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
     </div>
 
   </div>
 
+  <!-- PIE DE PÁGINA -->
   <div class="footer">
-    © 2026 Universidad Autónoma de Aguascalientes — Departamento de Enfermería &nbsp;|&nbsp; Datos protegidos conforme a LGPDPPSO
+    © 2026 Universidad Autónoma de Aguascalientes —
+    Departamento de Enfermería
+    &nbsp;|&nbsp;
+    Datos protegidos conforme a LGPDPPSO
   </div>
+
 </div>
 
-<!-- Modal retroalimentación -->
+<!-- MODAL RETROALIMENTACIÓN -->
 <div class="modal-overlay" id="modalRetro">
+
   <div class="modal" style="max-width:500px;">
+
     <h3 style="font-family:'Montserrat',sans-serif; color:#003087; margin-bottom:1rem;">
-      Retroalimentación — <span id="modalRetroId"></span>
+      Retroalimentación —
+      <span id="modalRetroId"></span>
     </h3>
+
     <div class="campo">
-      <label style="font-size:0.78rem; font-weight:600; color:#444;">Comentario</label>
-      <textarea id="textoRetro" rows="5"
-                style="width:100%; border:1px solid #dde2ee; border-radius:8px; padding:10px;
-                       font-family:'Open Sans',sans-serif; font-size:0.85rem; resize:vertical;
-                       outline:none;"
-                placeholder="Escribe tu retroalimentación para el estudiante..."></textarea>
+
+      <label style="font-size:0.78rem; font-weight:600; color:#444;">
+        Comentario
+      </label>
+
+      <textarea
+        id="textoRetro"
+        rows="5"
+        style="width:100%; border:1px solid #dde2ee; border-radius:8px; padding:10px;
+               font-family:'Open Sans',sans-serif; font-size:0.85rem; resize:vertical;
+               outline:none;"
+        placeholder="Escribe tu retroalimentación para el estudiante..."></textarea>
+
     </div>
-    <p id="errorRetro" style="color:#c0392b; font-size:0.78rem; min-height:1em;"></p>
-    <div style="display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1rem;">
-      <button class="btn-cancelar" onclick="cerrarModalRetro()">Cancelar</button>
-      <button class="btn-primary" onclick="guardarRetro()">Guardar</button>
+
+    <p id="errorRetro"
+      style="color:#c0392b; font-size:0.78rem; min-height:1em;">
+    </p>
+
+    <div class="acciones-modal"
+      style="display:flex; gap:0.8rem; justify-content:flex-end; margin-top:1rem;">
+
+      <button class="btn-cancelar" onclick="cerrarModalRetro()">
+        Cancelar
+      </button>
+
+      <button class="btn-primary" onclick="guardarRetro()">
+        Guardar
+      </button>
+
     </div>
+
   </div>
+
 </div>
-
-
 
 <script>
 var todasValoraciones = [];
@@ -140,11 +740,15 @@ async function verificarSesion() {
   try {
     var res  = await fetch('../api/sesion');
     var json = await res.json();
+
     if (!json.activa || json.rol !== 'maestro') {
       window.location.href = '../index.html';
       return;
     }
-    document.getElementById('saludo').textContent = 'Bienvenido/a, ' + json.nombre;
+
+    document.getElementById('saludo').textContent =
+      'Bienvenido/a, ' + json.nombre;
+
   } catch (e) {
     window.location.href = '../index.html';
   }
@@ -157,10 +761,15 @@ async function cargarValoraciones() {
 
     // Llenar filtro de alumnos
     var alumnos = {};
+
     todasValoraciones.forEach(function(v) {
-      if (v.estudianteId) alumnos[v.estudianteId] = v.estudianteNombre;
+      if (v.estudianteId) {
+        alumnos[v.estudianteId] = v.estudianteNombre;
+      }
     });
+
     var sel = document.getElementById('filtroAlumno');
+
     Object.keys(alumnos).forEach(function(id) {
       var opt = document.createElement('option');
       opt.value = id;
@@ -168,42 +777,66 @@ async function cargarValoraciones() {
       sel.appendChild(opt);
     });
 
-    // Stats
-    var completas  = todasValoraciones.filter(function(v) { return v.completada; }).length;
-    var sinRetro   = todasValoraciones.filter(function(v) { return v.completada && !v.tieneRetro; }).length;
-    document.getElementById('statTotal').textContent    = todasValoraciones.length;
-    document.getElementById('statCompletas').textContent = completas;
-    document.getElementById('statSinRetro').textContent  = sinRetro;
+    // Estadísticas
+    var completas = todasValoraciones.filter(function(v) {
+      return v.completada;
+    }).length;
+
+    var sinRetro = todasValoraciones.filter(function(v) {
+      return v.completada && !v.tieneRetro;
+    }).length;
+
+    document.getElementById('statTotal').textContent =
+      todasValoraciones.length;
+
+    document.getElementById('statCompletas').textContent =
+      completas;
+
+    document.getElementById('statSinRetro').textContent =
+      sinRetro;
 
     renderTabla(todasValoraciones);
 
   } catch (e) {
+
     document.getElementById('tablaValoraciones').innerHTML =
       '<tr><td colspan="7" style="text-align:center; color:#c0392b; padding:2rem;">Error al cargar valoraciones.</td></tr>';
+
   }
 }
 
 function filtrar() {
+
   var alumnoId = document.getElementById('filtroAlumno').value;
-  var estado   = document.getElementById('filtroEstado').value;
+  var estado = document.getElementById('filtroEstado').value;
 
   var filtradas = todasValoraciones.filter(function(v) {
-    var pasaAlumno = !alumnoId || String(v.estudianteId) === alumnoId;
-    var pasaEstado = estado === '' || String(v.completada ? 1 : 0) === estado;
+
+    var pasaAlumno =
+      !alumnoId || String(v.estudianteId) === alumnoId;
+
+    var pasaEstado =
+      estado === '' || String(v.completada ? 1 : 0) === estado;
+
     return pasaAlumno && pasaEstado;
+
   });
+
   renderTabla(filtradas);
 }
 
 function renderTabla(lista) {
+
   var tbody = document.getElementById('tablaValoraciones');
 
   if (!lista.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#999; padding:2rem;">No hay valoraciones.</td></tr>';
+    tbody.innerHTML =
+      '<tr><td colspan="7" style="text-align:center; color:#999; padding:2rem;">No hay valoraciones.</td></tr>';
     return;
   }
 
   tbody.innerHTML = lista.map(function(v) {
+
     var estadoBadge = v.completada
       ? '<span class="badge badge-completada">Completada</span>'
       : '<span class="badge badge-progreso">En progreso</span>';
@@ -212,7 +845,9 @@ function renderTabla(lista) {
       ? '<span class="badge badge-revision">Con retroalimentación</span>'
       : '<span style="color:#bbb; font-size:0.78rem;">Sin retroalimentación</span>';
 
-   var btnVer   = '<button class="btn-ver" onclick="verValoracion(' + v.id + ')" style="margin-right:0.4rem;">Ver</button>';
+    var btnVer =
+      '<button class="btn-ver" onclick="verValoracion(' + v.id + ')" style="margin-right:0.4rem;">Ver</button>';
+
     var btnRetro = v.completada
       ? btnVer + '<button class="btn-ver" onclick="abrirModalRetro(' + v.id + ')">Retroalimentar</button>'
       : btnVer;
@@ -226,14 +861,20 @@ function renderTabla(lista) {
       '<td>' + retro + '</td>' +
       '<td>' + btnRetro + '</td>' +
       '</tr>';
+
   }).join('');
 }
 
 function abrirModalRetro(id) {
+
   valoracionRetroId = id;
-  document.getElementById('modalRetroId').textContent = '#V-' + String(id).padStart(4, '0');
-  document.getElementById('textoRetro').value  = '';
+
+  document.getElementById('modalRetroId').textContent =
+    '#V-' + String(id).padStart(4, '0');
+
+  document.getElementById('textoRetro').value = '';
   document.getElementById('errorRetro').textContent = '';
+
   document.getElementById('modalRetro').classList.add('activo');
 }
 
@@ -243,28 +884,36 @@ function cerrarModalRetro() {
 }
 
 async function guardarRetro() {
+
   var comentario = document.getElementById('textoRetro').value.trim();
-  var errEl      = document.getElementById('errorRetro');
+  var errEl = document.getElementById('errorRetro');
 
   if (!comentario) {
     errEl.textContent = 'El comentario no puede estar vacío.';
     return;
   }
+
   errEl.textContent = '';
 
   try {
-    var res  = await fetch('../api/retroalimentacion', {
+
+    var res = await fetch('../api/retroalimentacion', {
       method: 'POST',
-      body: new URLSearchParams({ valoracionId: valoracionRetroId, comentario: comentario })
+      body: new URLSearchParams({
+        valoracionId: valoracionRetroId,
+        comentario: comentario
+      })
     });
+
     var json = await res.json();
 
     if (json.ok) {
       cerrarModalRetro();
-      cargarValoraciones(); // Refresca la tabla
+      cargarValoraciones();
     } else {
       errEl.textContent = json.mensaje || 'Error al guardar.';
     }
+
   } catch (e) {
     errEl.textContent = 'Error de conexión.';
   }
@@ -280,7 +929,9 @@ function formatearFecha(ts) {
 }
 
 document.getElementById('modalRetro').addEventListener('click', function(e) {
-  if (e.target === this) cerrarModalRetro();
+  if (e.target === this) {
+    cerrarModalRetro();
+  }
 });
 
 function verValoracion(id) {
@@ -289,5 +940,6 @@ function verValoracion(id) {
   window.location.href = 'formularioValoracion.html';
 };
 </script>
+
 </body>
 </html>
