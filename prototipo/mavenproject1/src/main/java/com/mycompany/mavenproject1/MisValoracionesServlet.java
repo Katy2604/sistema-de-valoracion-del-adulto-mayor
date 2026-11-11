@@ -50,7 +50,8 @@ public class MisValoracionesServlet extends HttpServlet {
                 int valoracionId = rs.getInt("id");
                 JSONObject o = new JSONObject();
                 o.put("id",             valoracionId);
-                o.put("fechaRegistro",  rs.getTimestamp("fecha_registro").getTime());
+                java.sql.Timestamp fecha = rs.getTimestamp("fecha_registro");
+                o.put("fechaRegistro", fecha == null ? JSONObject.NULL : fecha.getTime());
                 o.put("completada",     rs.getBoolean("completada"));
                 o.put("nombrePaciente", rs.getString("nombre_paciente") != null
                                         ? rs.getString("nombre_paciente") : "");
@@ -59,7 +60,9 @@ public class MisValoracionesServlet extends HttpServlet {
             }
 
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            getServletContext().log("Error consultando valoraciones del estudiante", e);
+            res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            arr = new JSONArray().put(new JSONObject().put("error", "No se pudieron cargar las valoraciones."));
         }
 
         imprimir(res, arr.toString());
