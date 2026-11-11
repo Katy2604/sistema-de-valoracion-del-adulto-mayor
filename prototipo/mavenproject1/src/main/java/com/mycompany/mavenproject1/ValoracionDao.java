@@ -154,14 +154,14 @@ public void insertarPatronVida(PatronVida p) {
     String sql =
         "INSERT INTO patron_vida (" +
         "valoracion_id,relacion_familiar,ingreso_economico,dependencia_economica," +
-        "estado_nutricional,peso,talla,imc,cabello,mucosas,piel,labios,encias," +
+        "estado_nutricional,cabello,mucosas,piel,labios,encias," +
         "nariz_orejas,unas,sistema_oseo,estado_general," +
         "kg_subidos,kg_perdidos,dentadura,guisa_alimentos," +
         "problema_cavidad_oral,problema_dental_comer,problema_digestion," +
         "alimentos_puede_comer,desayuno,comida,cena," +
         "cepillado_dientes,bano,cambio_ropa,lavado_manos," +
         "enfermedad_presente,tiene_tratamiento" +
-        ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) " +
+        ") VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) " +
         "ON DUPLICATE KEY UPDATE " +
         "relacion_familiar=VALUES(relacion_familiar),ingreso_economico=VALUES(ingreso_economico)," +
         "dependencia_economica=VALUES(dependencia_economica),estado_nutricional=VALUES(estado_nutricional)," +
@@ -186,35 +186,32 @@ public void insertarPatronVida(PatronVida p) {
         ps.setString(3, nullIfBlank(p.getIngresoEconomico()));
         ps.setString(4, nullIfBlank(p.getDependenciaEconomica()));
         ps.setString(5, nullIfBlank(p.getEstadoNutricional()));
-        ps.setString(6, nullIfBlank(p.getPeso()));
-        ps.setString(7, nullIfBlank(p.getTalla()));
-        ps.setString(8, nullIfBlank(p.getImc()));
-        ps.setString(9, nullIfBlank(p.getCabello()));
-        ps.setString(10, nullIfBlank(p.getMucosas()));
-        ps.setString(11, nullIfBlank(p.getPiel()));
-        ps.setString(12, nullIfBlank(p.getLabios()));
-        ps.setString(13, nullIfBlank(p.getEncias()));
-        ps.setString(14, nullIfBlank(p.getNarizOrejas()));
-        ps.setString(15, nullIfBlank(p.getUnas()));
-        ps.setString(16, nullIfBlank(p.getSistemaOseo()));
-        ps.setString(17, nullIfBlank(p.getEstadoGeneral()));
-        ps.setString(18, nullIfBlank(p.getKgSubidos()));
-        ps.setString(19, nullIfBlank(p.getKgPerdidos()));
-        ps.setString(20, nullIfBlank(p.getDentadura()));
-        ps.setString(21, nullIfBlank(p.getGuisaAlimentos()));
-        ps.setString(22, nullIfBlank(p.getProblemaCavidadOral()));
-        ps.setString(23, nullIfBlank(p.getProblemaDentalComer()));
-        ps.setString(24, nullIfBlank(p.getProblemaDigestion()));
-        ps.setString(25, nullIfBlank(p.getAlimentosPuedeComer()));
-        ps.setString(26, p.getDesayuno());
-        ps.setString(27, p.getComida());
-        ps.setString(28, p.getCena());
-        ps.setString(29, nullIfBlank(p.getCepilladoDientes()));
-        ps.setString(30, nullIfBlank(p.getBano()));
-        ps.setString(31, nullIfBlank(p.getCambioRopa()));
-        ps.setString(32, p.getLavadoManos());
-        ps.setString(33, nullIfBlank(p.getEnfermedadPresente()));
-        ps.setString(34, nullIfBlank(p.getTieneTratamiento()));
+        ps.setString(6, nullIfBlank(p.getCabello()));
+        ps.setString(7, nullIfBlank(p.getMucosas()));
+        ps.setString(8, nullIfBlank(p.getPiel()));
+        ps.setString(9, nullIfBlank(p.getLabios()));
+        ps.setString(10, nullIfBlank(p.getEncias()));
+        ps.setString(11, nullIfBlank(p.getNarizOrejas()));
+        ps.setString(12, nullIfBlank(p.getUnas()));
+        ps.setString(13, nullIfBlank(p.getSistemaOseo()));
+        ps.setString(14, nullIfBlank(p.getEstadoGeneral()));
+        ps.setString(15, nullIfBlank(p.getKgSubidos()));
+        ps.setString(16, nullIfBlank(p.getKgPerdidos()));
+        ps.setString(17, nullIfBlank(p.getDentadura()));
+        ps.setString(18, nullIfBlank(p.getGuisaAlimentos()));
+        ps.setString(19, nullIfBlank(p.getProblemaCavidadOral()));
+        ps.setString(20, nullIfBlank(p.getProblemaDentalComer()));
+        ps.setString(21, nullIfBlank(p.getProblemaDigestion()));
+        ps.setString(22, nullIfBlank(p.getAlimentosPuedeComer()));
+        ps.setString(23, p.getDesayuno());
+        ps.setString(24, p.getComida());
+        ps.setString(25, p.getCena());
+        ps.setString(26, nullIfBlank(p.getCepilladoDientes()));
+        ps.setString(27, nullIfBlank(p.getBano()));
+        ps.setString(28, nullIfBlank(p.getCambioRopa()));
+        ps.setString(29, p.getLavadoManos());
+        ps.setString(30, nullIfBlank(p.getEnfermedadPresente()));
+        ps.setString(31, nullIfBlank(p.getTieneTratamiento()));
 
         ps.executeUpdate();
 
@@ -295,8 +292,6 @@ public void insertarPatronVida(PatronVida p) {
                 out.put("ingresoEconomico",    rs.getString("ingreso_economico"));
                 out.put("dependenciaEconomica",rs.getString("dependencia_economica"));
                 out.put("estadoNutricional",   rs.getString("estado_nutricional"));
-                out.put("peso", rs.getString("peso"));
-                out.put("talla", rs.getString("talla"));
                 out.put("imc",     rs.getString("imc"));
                 out.put("cabello", rs.getString("cabello"));
                 out.put("mucosas",  rs.getString("mucosas"));
