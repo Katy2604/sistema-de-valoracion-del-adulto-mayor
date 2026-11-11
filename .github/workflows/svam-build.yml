@@ -30,3 +30,30 @@ jobs:
       - name: Comprobar páginas, recursos y contratos críticos
         working-directory: prototipo/mavenproject1
         run: node tests/svam-static-checks.js
+
+  database-migration-check:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: svam_test_password
+          MYSQL_DATABASE: valoracion_adulto_mayor
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -psvam_test_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Aplicar esquema original en MySQL limpio
+        run: mysql -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor < "Creacion de tablas SVAM.sql"
+      - name: Aplicar migración de respuestas
+        run: mysql -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor < database/migrations/2026-11-11_create_valoracion_secciones.sql
+      - name: Verificar tabla, índice único y llave foránea
+        run: |
+          test "$(mysql -N -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='valoracion_adulto_mayor' AND table_name='valoracion_secciones'")" = "1"
+          test "$(mysql -N -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor -e "SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema='valoracion_adulto_mayor' AND table_name='valoracion_secciones' AND index_name='uq_valoracion_seccion'")" = "2"
