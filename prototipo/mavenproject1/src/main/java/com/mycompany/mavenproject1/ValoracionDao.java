@@ -297,8 +297,8 @@ public void insertarPatronVida(PatronVida p) {
                 out.put("estadoNutricional",   rs.getString("estado_nutricional"));
                 out.put("peso", rs.getString("peso"));
                 out.put("talla", rs.getString("talla"));
-                out.put("cabello", rs.getString("imc"));
-                out.put("cabello",  rs.getString("cabello"));
+                out.put("imc",     rs.getString("imc"));
+                out.put("cabello", rs.getString("cabello"));
                 out.put("mucosas",  rs.getString("mucosas"));
                 out.put("piel",     rs.getString("piel"));
                 out.put("labios",   rs.getString("labios"));
@@ -329,9 +329,28 @@ public void insertarPatronVida(PatronVida p) {
             }
         }
         
-                // Detectar siguiente sección sin completar
+                // Las secciones nuevas se recuperan desde el JSON íntegro guardado.
+        // Esto incluye las 30 respuestas MMSE, las 15 GDS y las 6 de Katz.
+        try (PreparedStatement ps = con.prepareStatement(
+                "SELECT seccion, payload FROM valoracion_secciones WHERE valoracion_id=? ORDER BY seccion")) {
+            ps.setInt(1, valoracionId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    JSONObject payload = new JSONObject(rs.getString("payload"));
+                    for (String key : payload.keySet()) {
+                        out.put(key, payload.get(key));
+                    }
+                    out.put("seccionGuardada" + rs.getInt("seccion"), true);
+                }
+            }
+        }
+
+        // Indica el último bloque con datos persistidos; no presupone respuestas.
         int seccionActual = 0;
-        if (out.has("tipoPiso")) seccionActual = 2;
+        for (int i = 1; i <= 6; i++) {
+            if (out.optBoolean("seccionGuardada" + i, false)) seccionActual = i + 1;
+        }
+        if (seccionActual == 0 && out.has("tipoPiso")) seccionActual = 2;
         out.put("seccionActual", seccionActual);
     } catch (Exception e) { e.printStackTrace(); return null; }
     return out;
