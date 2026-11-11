@@ -96,21 +96,24 @@ function recolectarSeccionCompleta(indice) {
   var contenedor = document.getElementById('sec-' + indice);
   if (!contenedor) throw new Error('No se encontró la sección ' + indice);
   var datos = {};
-  var grupos = {};
-  contenedor.querySelectorAll('input, select, textarea').forEach(function(el) {
-    if (el.disabled || el.type === 'button' || el.type === 'submit') return;
-    var clave = el.name || el.id;
-    if (!clave) return;
+  var gruposCheckbox = {};
+  var gruposRadio = {};
+  contenedor.querySelectorAll('input, select, textarea').forEach(function(el, index) {
+    if (el.type === 'button' || el.type === 'submit' || el.type === 'reset') return;
+    // Los campos heredados sin id/name también se guardan por posición estable.
+    var clave = el.name || el.id || ('__control_' + index);
     if (el.type === 'radio') {
-      if (el.checked) datos[clave] = el.value;
+      if (!Object.prototype.hasOwnProperty.call(gruposRadio, clave)) gruposRadio[clave] = null;
+      if (el.checked) gruposRadio[clave] = el.value;
     } else if (el.type === 'checkbox') {
-      if (!grupos[clave]) grupos[clave] = [];
-      if (el.checked) grupos[clave].push(el.value);
+      if (!gruposCheckbox[clave]) gruposCheckbox[clave] = [];
+      if (el.checked) gruposCheckbox[clave].push(el.value);
     } else {
       datos[clave] = el.value;
     }
   });
-  Object.keys(grupos).forEach(function(clave) { datos[clave] = grupos[clave]; });
+  Object.keys(gruposCheckbox).forEach(function(clave) { datos[clave] = gruposCheckbox[clave]; });
+  Object.keys(gruposRadio).forEach(function(clave) { datos[clave] = gruposRadio[clave]; });
   return datos;
 }
 
@@ -352,7 +355,17 @@ async function cargarDatosGuardados() {
     Object.keys(json).forEach(function(clave) {
       if (clave === 'ok' || clave === 'seccionActual' || /^seccionGuardada/.test(clave)) return;
       var valor = json[clave];
-      var controles = document.querySelectorAll('[name="' + CSS.escape(clave) + '"]');
+      var controles;
+      var indiceControl = /^__control_(\\d+)$/.exec(clave);
+      if (indiceControl) {
+        var seccion = document.getElementById('sec-' + (parseInt(indiceControl[1], 10) >= 0 ? 1 : 1));
+        // La clave posicional se resuelve dentro de la sección que contiene el control.
+        var todos = Array.from(document.querySelectorAll('.seccion-form input, .seccion-form select, .seccion-form textarea'));
+        var pos = parseInt(indiceControl[1], 10);
+        controles = todos[pos] ? [todos[pos]] : [];
+      } else {
+        controles = document.querySelectorAll('[name="' + CSS.escape(clave) + '"]');
+      }
       if (!controles.length) {
         var porId = document.getElementById(clave);
         if (porId && valor != null && typeof valor !== 'object') porId.value = valor;
