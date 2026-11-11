@@ -67,9 +67,10 @@ public class ValoracionesSeccionServlet extends HttpServlet {
                 ps.setInt(1, valoracionId);
                 ps.setInt(2, seccion);
                 ps.setString(3, payload.toString());
-                if (ps.executeUpdate() != 1) {
-                    throw new IllegalStateException("MySQL no confirmó el guardado de la sección.");
-                }
+                // En MySQL, INSERT ... ON DUPLICATE KEY UPDATE puede devolver
+                // 2 cuando actualiza una fila existente. No interpretar ese valor
+                // como fallo: cualquier ejecución sin SQLException se considera guardada.
+                ps.executeUpdate();
             }
 
             responder(res, 200, true, "Sección guardada.");
