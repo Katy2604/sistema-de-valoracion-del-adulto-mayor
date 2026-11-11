@@ -142,7 +142,7 @@ public class ValoracionesServlet extends HttpServlet {
         }
         try {
             int id = Integer.parseInt(req.getParameter("id"));
-            if (!esPropietario(id, usuario.getId())) {
+            if (!puedeConsultar(id, usuario)) {
                 responder(res, 403, new JSONObject().put("ok", false).put("mensaje", "No tienes acceso a esta valoración."));
                 return;
             }
@@ -165,6 +165,18 @@ public class ValoracionesServlet extends HttpServlet {
         HttpSession session = req.getSession(false);
         Object value = session == null ? null : session.getAttribute("usuario");
         return value instanceof Usuario ? (Usuario) value : null;
+    }
+
+    private boolean puedeConsultar(int id, Usuario usuario) throws Exception {
+        if ("maestro".equalsIgnoreCase(usuario.getRol()) || "admin".equalsIgnoreCase(usuario.getRol())) {
+            String sql = "SELECT 1 FROM valoraciones WHERE id=?";
+            try (Connection con = Dbconnection.getConnection();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setInt(1, id);
+                try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
+            }
+        }
+        return esPropietario(id, usuario.getId());
     }
 
     private boolean esPropietario(int id, int usuarioId) throws Exception {
