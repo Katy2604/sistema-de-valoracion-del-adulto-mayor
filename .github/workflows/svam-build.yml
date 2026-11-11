@@ -24,3 +24,9 @@ jobs:
       - name: Compilar aplicación WAR
         working-directory: prototipo/mavenproject1
         run: mvn --batch-mode --no-transfer-progress clean verify
+      - name: Validar sintaxis de JavaScript
+        working-directory: prototipo/mavenproject1
+        run: find src/main/webapp/scripts -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Comprobar páginas, recursos y contratos críticos
+        working-directory: prototipo/mavenproject1
+        run: node tests/svam-static-checks.js
