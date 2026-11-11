@@ -371,6 +371,11 @@ async function cargarDatosGuardados() {
     if (typeof calcularGds === 'function') calcularGds();
     if (typeof calcularKatz === 'function') calcularKatz();
 
+    // No asumir que una valoración histórica contiene respuestas que nunca se guardaron.
+    window.valoracionDatosCompletos = [1, 2, 3, 4, 5, 6].every(function(n) {
+      return json['seccionGuardada' + n] === true;
+    });
+
     return json.seccionActual || 0;
   } catch (e) {
       
