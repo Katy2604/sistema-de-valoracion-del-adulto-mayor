@@ -83,7 +83,7 @@ public class ValoracionesSeccionServlet extends HttpServlet {
 
     private boolean esPropietario(int valoracionId, int usuarioId)
             throws Exception {
-        String sql = "SELECT 1 FROM valoraciones WHERE id=? AND usuario_id=?";
+        String sql = "SELECT 1 FROM valoraciones WHERE id=? AND usuario_id=? AND completada=0";
         try (Connection con = Dbconnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, valoracionId);
