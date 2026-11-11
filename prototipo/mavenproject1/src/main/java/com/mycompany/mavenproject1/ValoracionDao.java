@@ -93,7 +93,7 @@ public class ValoracionDao {
             ps.executeUpdate();
 
         } catch (SQLException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("No se pudieron guardar los datos del paciente.", e);
         }
     }
     
