@@ -49,16 +49,19 @@ public class ValoracionDao {
                 + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         try (Connection con = Dbconnection.getConnection()) {
-            int actualizados;
-            try (PreparedStatement ps = con.prepareStatement(update)) {
-                asignarPacienteDatos(ps, p, 1);
-                ps.setInt(17, valoracionId);
-                actualizados = ps.executeUpdate();
+            boolean existe;
+            try (PreparedStatement ps = con.prepareStatement(
+                    "SELECT 1 FROM paciente_datos WHERE valoracion_id=? LIMIT 1")) {
+                ps.setInt(1, valoracionId);
+                try (ResultSet rs = ps.executeQuery()) { existe = rs.next(); }
             }
-            // El esquema histórico no declara UNIQUE(valoracion_id), por lo que
-            // ON DUPLICATE KEY UPDATE no funcionaba. Actualizamos explícitamente
-            // y solo insertamos si todavía no existe ningún registro.
-            if (actualizados == 0) {
+            if (existe) {
+                try (PreparedStatement ps = con.prepareStatement(update)) {
+                    asignarPacienteDatos(ps, p, 1);
+                    ps.setInt(17, valoracionId);
+                    ps.executeUpdate(); // actualiza también posibles duplicados históricos
+                }
+            } else {
                 try (PreparedStatement ps = con.prepareStatement(insert)) {
                     ps.setInt(1, valoracionId);
                     asignarPacienteDatos(ps, p, 2);
