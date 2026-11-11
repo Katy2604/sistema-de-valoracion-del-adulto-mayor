@@ -659,8 +659,12 @@ function cerrarSesion() {
 }
 
 function escHtml(valor) {
-  return String(valor).replace(/[&<>\"']/g, function(c) {
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c];
+  return String(valor).replace(/[&<>"']/g, function(caracter) {
+    if (caracter === '&') return '&amp;';
+    if (caracter === '<') return '&lt;';
+    if (caracter === '>') return '&gt;';
+    if (caracter === '"') return '&quot;';
+    return '&#39;';
   });
 }
 
