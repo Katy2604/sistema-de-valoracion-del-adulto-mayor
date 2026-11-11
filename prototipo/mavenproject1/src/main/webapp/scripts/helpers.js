@@ -346,9 +346,32 @@ async function cargarDatosGuardados() {
     setChks('lavadoManos', json.lavadoManos);
     setVal('enfermedadPresente', json.enfermedadPresente);
     setVal('tieneTratamiento',   json.tieneTratamiento);
-// Al final del bloque try, antes del catch:
-// Determinar última sección con datos
-return json.seccionActual || 0;
+
+    // Restaurar cualquier control persistido, incluidas las respuestas de escalas.
+    // Los controles que nunca se respondieron permanecen sin selección.
+    Object.keys(json).forEach(function(clave) {
+      if (clave === 'ok' || clave === 'seccionActual' || /^seccionGuardada/.test(clave)) return;
+      var valor = json[clave];
+      var controles = document.querySelectorAll('[name="' + CSS.escape(clave) + '"]');
+      if (!controles.length) {
+        var porId = document.getElementById(clave);
+        if (porId && valor != null && typeof valor !== 'object') porId.value = valor;
+        return;
+      }
+      if (controles[0].type === 'radio') {
+        controles.forEach(function(el) { el.checked = String(el.value) === String(valor); });
+      } else if (controles[0].type === 'checkbox') {
+        var seleccionados = Array.isArray(valor) ? valor.map(String) : [];
+        controles.forEach(function(el) { el.checked = seleccionados.indexOf(String(el.value)) !== -1; });
+      } else if (valor != null && typeof valor !== 'object') {
+        controles[0].value = valor;
+      }
+    });
+    if (typeof calcularMmse === 'function') calcularMmse();
+    if (typeof calcularGds === 'function') calcularGds();
+    if (typeof calcularKatz === 'function') calcularKatz();
+
+    return json.seccionActual || 0;
   } catch (e) {
       
     console.error('Error cargando:', e); return 0;
