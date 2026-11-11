@@ -85,7 +85,7 @@ assert.ok(login.includes('SC_FORBIDDEN'), 'El servidor debe responder con acceso
 assert.ok(login.includes('changeSessionId()'), 'El inicio de sesión debe renovar el identificador de sesión');
 
 const loginHtml = read('index.html');
-assert.ok(!/\bnovalidate\b/i.test(loginHtml), 'El navegador debe validar los campos obligatorios del login');
+assert.ok(!loginHtml.includes('novalidate'), 'El navegador debe validar los campos obligatorios del login');
 assert.ok(/id="checkConf"[^>]*required/.test(loginHtml), 'La aceptación del aviso debe ser obligatoria en HTML');
 assert.ok(loginHtml.includes('role="alert"'), 'El mensaje de aceptación debe anunciarse accesiblemente');
 const loginJs = fs.readFileSync(path.resolve(__dirname, '../src/main/webapp/scripts/autenticacion.js'), 'utf8');
