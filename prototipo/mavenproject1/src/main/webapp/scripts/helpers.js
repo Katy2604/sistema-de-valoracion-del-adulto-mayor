@@ -29,7 +29,7 @@ function recolectarSeccion0() {
 }
 
 function recolectarSeccion1() {
-  return {
+  return Object.assign(recolectarSeccionCompleta(1), {
     tipoPiso:           chks('tipoPiso'),
     tipoPared:          chks('tipoPared'),
     tipoTecho:          chks('tipoTecho'),
@@ -87,14 +87,38 @@ function recolectarSeccion1() {
 
         enfermedadPresente: val('enfermedadPresente'),
         tieneTratamiento: val('tieneTratamiento')
-  };
+  });
 }
 
-function recolectarSeccion2() { return { seccion: 2 }; }
-function recolectarSeccion3() { return { seccion: 3 }; }
-function recolectarSeccion4() { return { seccion: 4 }; }
-function recolectarSeccion5() { return { seccion: 5 }; }
-function recolectarSeccion6() { return { seccion: 6 }; }
+// Recolecta los controles reales de una sección. Los radios sin respuesta
+// no se inventan y los checkbox se conservan como arreglos.
+function recolectarSeccionCompleta(indice) {
+  var contenedor = document.getElementById('sec-' + indice);
+  if (!contenedor) throw new Error('No se encontró la sección ' + indice);
+  var datos = {};
+  var grupos = {};
+  contenedor.querySelectorAll('input, select, textarea').forEach(function(el) {
+    if (el.disabled || el.type === 'button' || el.type === 'submit') return;
+    var clave = el.name || el.id;
+    if (!clave) return;
+    if (el.type === 'radio') {
+      if (el.checked) datos[clave] = el.value;
+    } else if (el.type === 'checkbox') {
+      if (!grupos[clave]) grupos[clave] = [];
+      if (el.checked) grupos[clave].push(el.value);
+    } else {
+      datos[clave] = el.value;
+    }
+  });
+  Object.keys(grupos).forEach(function(clave) { datos[clave] = grupos[clave]; });
+  return datos;
+}
+
+function recolectarSeccion2() { return recolectarSeccionCompleta(2); }
+function recolectarSeccion3() { return recolectarSeccionCompleta(3); }
+function recolectarSeccion4() { return recolectarSeccionCompleta(4); }
+function recolectarSeccion5() { return recolectarSeccionCompleta(5); }
+function recolectarSeccion6() { return recolectarSeccionCompleta(6); }
 
 // =============================================
 // GUARDADO POR SECCIÓN
@@ -124,12 +148,13 @@ async function guardarSeccion(seccion) {
       var res  = await fetch('../api/valoraciones', { method: 'POST', body: body });
       var json = await res.json();
 
-      if (json.ok) {
+      if (res.ok && json.ok) {
         valoracionId = json.valoracionId;
         sessionStorage.setItem('valoracionId', valoracionId);
         console.log('Valoración creada con ID:', valoracionId);
       } else {
         mostrarToast('Error al guardar datos del paciente: ' + (json.mensaje || ''), true);
+        return false;
       }
 
     } else {
@@ -153,16 +178,19 @@ async function guardarSeccion(seccion) {
       });
       var json = await res.json();
 
-      if (!json.ok) {
-        mostrarToast('Error al guardar sección ' + (seccion + 1), true);
+      if (!res.ok || !json.ok) {
+        mostrarToast('Error al guardar sección ' + (seccion + 1) + ': ' + (json.mensaje || ''), true);
+        return false;
       }
     }
 
     mostrarToast('Guardado ✓');
+    return true;
 
   } catch (e) {
     console.error('Error guardando sección', seccion, e);
     mostrarToast('Error de conexión al guardar.', true);
+    return false;
   }
 }
 
@@ -171,9 +199,8 @@ async function guardarSeccion(seccion) {
 // =============================================
 
 async function finalizarYGuardar() {
-  await guardarSeccion(6);
-
-  if (!valoracionId) return;
+  var guardado = await guardarSeccion(6);
+  if (!guardado || !valoracionId) return;
 
   try {
     var res  = await fetch('../api/valoraciones', {
@@ -182,7 +209,7 @@ async function finalizarYGuardar() {
     });
     var json = await res.json();
 
-    if (json.ok) {
+    if (res.ok && json.ok) {
       mostrarToast('Valoración completada ✓');
       // Generar PDF después de guardar
       setTimeout(function() { finalizarValoracion(); }, 800);
