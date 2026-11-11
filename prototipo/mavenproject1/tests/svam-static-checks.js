@@ -80,6 +80,16 @@ assert.ok(valuationServlet.includes('valoracion_secciones'), 'La finalización d
 
 const login = fs.readFileSync(path.resolve(__dirname, '../src/main/java/com/mycompany/mavenproject1/Loginservlet.java'), 'utf8');
 assert.ok(login.includes('aceptaConfidencialidad'), 'El servidor debe exigir aceptación del aviso');
+assert.ok(login.includes('if (!"si".equals(aceptaAviso))'), 'El servidor debe rechazar el login si no se acepta el aviso');
+assert.ok(login.includes('SC_FORBIDDEN'), 'El servidor debe responder con acceso prohibido si falta la aceptación');
 assert.ok(login.includes('changeSessionId()'), 'El inicio de sesión debe renovar el identificador de sesión');
+
+const loginHtml = read('index.html');
+assert.ok(!/\bnovalidate\b/i.test(loginHtml), 'El navegador debe validar los campos obligatorios del login');
+assert.ok(/id="checkConf"[^>]*required/.test(loginHtml), 'La aceptación del aviso debe ser obligatoria en HTML');
+assert.ok(loginHtml.includes('role="alert"'), 'El mensaje de aceptación debe anunciarse accesiblemente');
+const loginJs = fs.readFileSync(path.resolve(__dirname, '../src/main/webapp/scripts/autenticacion.js'), 'utf8');
+assert.ok(loginJs.includes('!checkConf || !checkConf.checked'), 'El cliente debe bloquear si la casilla falta o no está marcada');
+assert.ok(loginJs.includes('Para ingresar, es necesario seleccionar la casilla'), 'El cliente debe explicar por qué no puede ingresar');
 
 console.log('SVAM static checks: OK (' + pages.length + ' páginas, referencias locales, scripts inline y contratos críticos).');
