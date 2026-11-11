@@ -109,14 +109,16 @@ public class ValoracionesServlet extends HttpServlet {
                 responder(res, 400, new JSONObject().put("ok", false).put("mensaje", "ID inválido."));
                 return;
             }
-            String sql = "UPDATE valoraciones SET completada=1 WHERE id=? AND usuario_id=? AND completada=0";
+            String sql = "UPDATE valoraciones v SET v.completada=1 WHERE v.id=? AND v.usuario_id=? AND v.completada=0 " +
+                    "AND EXISTS (SELECT 1 FROM paciente_datos p WHERE p.valoracion_id=v.id) " +
+                    "AND (SELECT COUNT(*) FROM valoracion_secciones s WHERE s.valoracion_id=v.id AND s.seccion BETWEEN 1 AND 6)=6";
             try (Connection con = Dbconnection.getConnection();
                  PreparedStatement ps = con.prepareStatement(sql)) {
                 ps.setInt(1, id);
                 ps.setInt(2, usuario.getId());
                 if (ps.executeUpdate() != 1) {
                     responder(res, 403, new JSONObject().put("ok", false)
-                            .put("mensaje", "La valoración no existe, no te pertenece o ya fue finalizada."));
+                            .put("mensaje", "No se pudo finalizar: verifica que la valoración te pertenezca y que todas las secciones estén guardadas."));
                     return;
                 }
             }
