@@ -21,10 +21,10 @@ function read(relativePath) {
 
 function checkLocalAssets(pagePath, html) {
   const refs = [];
-  for (const match of html.matchAll(/<script\\b[^>]*\\bsrc=["']([^"']+)["']/gi)) refs.push(match[1]);
-  for (const match of html.matchAll(/<link\\b[^>]*\\bhref=["']([^"']+\\.css(?:\\?[^"']*)?)["']/gi)) refs.push(match[1]);
+  for (const match of html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)) refs.push(match[1]);
+  for (const match of html.matchAll(/<link\b[^>]*\bhref=["']([^"']+\.css(?:\?[^"']*)?)["']/gi)) refs.push(match[1]);
   for (const ref of refs) {
-    if (/^(https?:)?\\/\\//i.test(ref) || ref.startsWith('data:')) continue;
+    if (/^(https?:)?\/\//i.test(ref) || ref.startsWith('data:')) continue;
     const clean = ref.split('?')[0].split('#')[0];
     const target = path.resolve(root, path.dirname(pagePath), clean);
     assert.ok(target.startsWith(root + path.sep), pagePath + ': referencia fuera de webapp: ' + ref);
@@ -34,7 +34,7 @@ function checkLocalAssets(pagePath, html) {
 
 function checkInlineScripts(pagePath, html) {
   let index = 0;
-  for (const match of html.matchAll(/<script\\b(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)) {
+  for (const match of html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)) {
     index++;
     const code = match[1].trim();
     if (!code) continue;
