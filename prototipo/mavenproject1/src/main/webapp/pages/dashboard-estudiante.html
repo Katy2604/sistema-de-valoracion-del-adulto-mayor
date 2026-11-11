@@ -618,7 +618,7 @@ async function cargarValoraciones() {
 
       return '<tr>' +
         '<td>#V-' + String(v.id).padStart(4, '0') + '</td>' +
-        '<td>' + (v.nombrePaciente || 'Sin nombre') + '</td>' +
+        '<td>' + escHtml(v.nombrePaciente || 'Sin nombre') + '</td>' +
         '<td>' + formatearFecha(v.fechaRegistro) + '</td>' +
         '<td>' + estadoBadge + '</td>' +
         '<td>' + retro + '</td>' +
@@ -656,6 +656,12 @@ function descargarPDF(id) {
 
 function cerrarSesion() {
   window.location.href = '../api/logout';
+}
+
+function escHtml(valor) {
+  return String(valor).replace(/[&<>\"']/g, function(c) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c];
+  });
 }
 
 function formatearFecha(ts) {
