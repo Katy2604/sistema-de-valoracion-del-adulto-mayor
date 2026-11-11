@@ -366,22 +366,6 @@
         font-size: 0.78rem;
       }
     }
-    @media print {
-      @page { size: A4; margin: 12mm; }
-      body, #formulario, #formulario.activa { display: block !important; }
-      #formulario { overflow: visible !important; padding: 0 !important; }
-      #formulario .form-container { width: 100% !important; max-width: none !important; margin: 0 !important; }
-      #formulario .form-card { box-shadow: none !important; border: 0 !important; padding: 0 !important; }
-      #formulario .seccion-form { display: block !important; page-break-inside: auto; break-inside: auto; }
-      #formulario .nav-secciones, #formulario .header-right,
-      #formulario button, #toast-guardado { display: none !important; }
-      #formulario .campo, #formulario .escala-pregunta { break-inside: avoid; }
-      #formulario input, #formulario select, #formulario textarea {
-        color: #111 !important; background: transparent !important;
-        border: 0 !important; box-shadow: none !important;
-      }
-      #formulario .seccion-form h3 { page-break-after: avoid; }
-    }
   </style>
 
 </head>

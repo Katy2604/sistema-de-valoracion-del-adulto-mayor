@@ -7,17 +7,19 @@ import java.util.List;
 public class RetroalimentacionDao {
 
     /** Inserta una retroalimentación nueva */
-    public void insertar(Retroalimentacion r) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO retroalimentacion (valoracion_id, maestro_id, comentario, leida) "
-                   + "VALUES (?, ?, ?, 0)";
+    public void insertar(Retroalimentacion r) {
+        String sql = "INSERT INTO retroalimentacion (valoracion_id, maestro_id, comentario, leida) " +
+                     "VALUES (?, ?, ?, 0)";
         try (Connection con = Dbconnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, r.getValoracionId());
             ps.setInt(2, r.getMaestroId());
             ps.setString(3, r.getComentario());
-            if (ps.executeUpdate() != 1) {
-                throw new SQLException("MySQL no confirmó el guardado de la retroalimentación.");
-            }
+            ps.executeUpdate();
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
     }
 
@@ -40,15 +42,19 @@ public class RetroalimentacionDao {
     }
 
     /** Verifica si una valoración ya tiene al menos una retroalimentación */
-    public boolean tieneRetro(int valoracionId) throws SQLException, ClassNotFoundException {
-        String sql = "SELECT 1 FROM retroalimentacion WHERE valoracion_id = ? LIMIT 1";
+    public boolean tieneRetro(int valoracionId) {
+        String sql = "SELECT COUNT(*) FROM retroalimentacion WHERE valoracion_id = ?";
         try (Connection con = Dbconnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+
             ps.setInt(1, valoracionId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) return rs.getInt(1) > 0;
+
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
         }
+        return false;
     }
 
     private Retroalimentacion mapear(ResultSet rs) throws SQLException {

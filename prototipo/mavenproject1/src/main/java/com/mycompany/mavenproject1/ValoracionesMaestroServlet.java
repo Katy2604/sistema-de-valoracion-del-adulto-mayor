@@ -57,8 +57,7 @@ public class ValoracionesMaestroServlet extends HttpServlet {
                 int valoracionId = rs.getInt("id");
                 JSONObject o = new JSONObject();
                 o.put("id",               valoracionId);
-                Timestamp fecha = rs.getTimestamp("fecha_registro");
-                o.put("fechaRegistro", fecha == null ? JSONObject.NULL : fecha.getTime());
+                o.put("fechaRegistro",    rs.getTimestamp("fecha_registro").getTime());
                 o.put("completada",       rs.getBoolean("completada"));
                 o.put("estudianteId",     rs.getInt("estudiante_id"));
                 o.put("estudianteNombre", rs.getString("estudiante_nombre"));
@@ -69,10 +68,7 @@ public class ValoracionesMaestroServlet extends HttpServlet {
             }
 
         } catch (SQLException | ClassNotFoundException e) {
-            getServletContext().log("Error consultando valoraciones para maestro", e);
-            res.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            arr = new JSONArray().put(new JSONObject()
-                    .put("error", "No se pudieron cargar las valoraciones."));
+            e.printStackTrace();
         }
 
         imprimir(res, arr.toString());

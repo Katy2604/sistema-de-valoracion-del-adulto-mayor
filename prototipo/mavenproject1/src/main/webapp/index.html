@@ -24,8 +24,7 @@
     <p>Adulto Mayor — Departamento de Enfermería</p>
 
     <!-- Formulario conectado al Servlet /api/login -->
-    <!-- Sin novalidate: el navegador también exige marcar la casilla si JavaScript no carga. -->
-    <form id="formLogin">
+    <form id="formLogin" novalidate>
 
       <input type="email"
              id="correo"
@@ -42,15 +41,15 @@
              autocomplete="current-password" />
 
       <div class="confidencialidad-check">
-        <input type="checkbox" id="checkConf" name="aceptaConfidencialidad" value="si" required aria-describedby="errorLogin" />
+        <input type="checkbox" id="checkConf" />
         <label for="checkConf">
           He leído y acepto el aviso de confidencialidad y el manejo de datos
           personales conforme a la LGPDPPSO.
         </label>
       </div>
 
-      <!-- Mensaje accesible: se muestra si intenta ingresar sin aceptar. -->
-      <p id="errorLogin" class="error-msg" role="alert" aria-live="assertive"></p>
+      <!-- Mensaje de error del servidor -->
+      <p id="errorLogin" class="error-msg" aria-live="polite"></p>
 
       <button type="submit" id="btnLogin" class="btn-primary">INGRESAR</button>
 

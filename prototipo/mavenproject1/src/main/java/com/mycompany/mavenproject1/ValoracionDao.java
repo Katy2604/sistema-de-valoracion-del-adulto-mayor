@@ -38,68 +38,65 @@ public class ValoracionDao {
 
     // ── Inserta o actualiza paciente_datos ───────────────
     public void insertarPacienteDatos(PacienteDatos p, int valoracionId) {
-        String update = "UPDATE paciente_datos SET nombre=?, edad=?, genero=?, lugar_nacimiento=?, "
-                + "domicilio=?, fecha_ingreso=?, religion=?, escolaridad=?, estado_civil=?, ocupacion=?, "
-                + "dependencia_institucion=?, servicios_salud=?, cuando_acude_medico=?, "
-                + "capaz_decisiones=?, responsable=?, lleva_tratamiento=? WHERE valoracion_id=?";
-        String insert = "INSERT INTO paciente_datos "
-                + "(valoracion_id,nombre,edad,genero,lugar_nacimiento,domicilio,fecha_ingreso,religion,"
-                + "escolaridad,estado_civil,ocupacion,dependencia_institucion,servicios_salud,"
-                + "cuando_acude_medico,capaz_decisiones,responsable,lleva_tratamiento) "
-                + "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        // Usa INSERT ... ON DUPLICATE KEY UPDATE para soportar guardado parcial
+        String sql =
+            "INSERT INTO paciente_datos " +
+            "(valoracion_id, nombre, edad, genero, lugar_nacimiento, domicilio, " +
+            " fecha_ingreso, religion, escolaridad, estado_civil, ocupacion, " +
+            " dependencia_institucion, servicios_salud, cuando_acude_medico, " +
+            " capaz_decisiones, responsable, lleva_tratamiento) " +
+            "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) " +
+            "ON DUPLICATE KEY UPDATE " +
+            " nombre=VALUES(nombre), edad=VALUES(edad), genero=VALUES(genero), " +
+            " lugar_nacimiento=VALUES(lugar_nacimiento), domicilio=VALUES(domicilio), " +
+            " fecha_ingreso=VALUES(fecha_ingreso), religion=VALUES(religion), " +
+            " escolaridad=VALUES(escolaridad), estado_civil=VALUES(estado_civil), " +
+            " ocupacion=VALUES(ocupacion), dependencia_institucion=VALUES(dependencia_institucion), " +
+            " servicios_salud=VALUES(servicios_salud), cuando_acude_medico=VALUES(cuando_acude_medico), " +
+            " capaz_decisiones=VALUES(capaz_decisiones), responsable=VALUES(responsable), " +
+            " lleva_tratamiento=VALUES(lleva_tratamiento)";
 
-        try (Connection con = Dbconnection.getConnection()) {
-            boolean existe;
-            try (PreparedStatement ps = con.prepareStatement(
-                    "SELECT 1 FROM paciente_datos WHERE valoracion_id=? LIMIT 1")) {
-                ps.setInt(1, valoracionId);
-                try (ResultSet rs = ps.executeQuery()) { existe = rs.next(); }
-            }
-            if (existe) {
-                try (PreparedStatement ps = con.prepareStatement(update)) {
-                    asignarPacienteDatos(ps, p, 1);
-                    ps.setInt(17, valoracionId);
-                    ps.executeUpdate(); // actualiza también posibles duplicados históricos
-                }
-            } else {
-                try (PreparedStatement ps = con.prepareStatement(insert)) {
-                    ps.setInt(1, valoracionId);
-                    asignarPacienteDatos(ps, p, 2);
-                    if (ps.executeUpdate() != 1) {
-                        throw new SQLException("MySQL no confirmó el guardado de paciente_datos.");
-                    }
-                }
-            }
+        try (Connection con = Dbconnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, p.getValoracionId());
+            ps.setString(2, p.getNombre());
+
+            if (p.getEdad() != null) ps.setInt(3, p.getEdad());
+            else                     ps.setNull(3, Types.TINYINT);
+
+            ps.setString(4,  nullIfBlank(p.getGenero()));
+            ps.setString(5, p.getLugarNacimiento());
+            ps.setString(6, p.getDomicilio());
+
+            if (p.getFechaIngreso() != null && !p.getFechaIngreso().isEmpty())
+                ps.setDate(7, Date.valueOf(p.getFechaIngreso()));
+            else
+                ps.setNull(7, Types.DATE);
+
+            ps.setString(8,  p.getReligion());
+            ps.setString(9,  nullIfBlank(p.getEscolaridad()));
+            ps.setString(10, nullIfBlank(p.getEstadoCivil()));
+            ps.setString(11, p.getOcupacion());
+            ps.setString(12, p.getDependenciaInstitucion());
+            ps.setString(13, p.getServiciosSalud());
+            ps.setString(14, nullIfBlank(p.getCuandoAcudeMedico()));
+
+            if (p.getCapazDecisiones() != null) ps.setBoolean(15, p.getCapazDecisiones());
+            else                                ps.setNull(15, Types.TINYINT);
+
+            ps.setString(16, p.getResponsable());
+
+            if (p.getLlevaTratamiento() != null) ps.setBoolean(17, p.getLlevaTratamiento());
+            else                                 ps.setNull(17, Types.TINYINT);
+
+            ps.executeUpdate();
+
         } catch (SQLException | ClassNotFoundException e) {
-            throw new IllegalStateException("No se pudieron guardar los datos del paciente.", e);
+            e.printStackTrace();
         }
     }
-
-    private void asignarPacienteDatos(PreparedStatement ps, PacienteDatos p, int inicio)
-            throws SQLException {
-        ps.setString(inicio, p.getNombre());
-        if (p.getEdad() != null) ps.setInt(inicio + 1, p.getEdad());
-        else ps.setNull(inicio + 1, Types.TINYINT);
-        ps.setString(inicio + 2, nullIfBlank(p.getGenero()));
-        ps.setString(inicio + 3, p.getLugarNacimiento());
-        ps.setString(inicio + 4, p.getDomicilio());
-        if (p.getFechaIngreso() != null && !p.getFechaIngreso().trim().isEmpty())
-            ps.setDate(inicio + 5, Date.valueOf(p.getFechaIngreso()));
-        else ps.setNull(inicio + 5, Types.DATE);
-        ps.setString(inicio + 6, p.getReligion());
-        ps.setString(inicio + 7, nullIfBlank(p.getEscolaridad()));
-        ps.setString(inicio + 8, nullIfBlank(p.getEstadoCivil()));
-        ps.setString(inicio + 9, p.getOcupacion());
-        ps.setString(inicio + 10, p.getDependenciaInstitucion());
-        ps.setString(inicio + 11, p.getServiciosSalud());
-        ps.setString(inicio + 12, nullIfBlank(p.getCuandoAcudeMedico()));
-        if (p.getCapazDecisiones() != null) ps.setBoolean(inicio + 13, p.getCapazDecisiones());
-        else ps.setNull(inicio + 13, Types.TINYINT);
-        ps.setString(inicio + 14, p.getResponsable());
-        if (p.getLlevaTratamiento() != null) ps.setBoolean(inicio + 15, p.getLlevaTratamiento());
-        else ps.setNull(inicio + 15, Types.TINYINT);
-    }
-
+    
     // ── Inserta o actualiza entorno ──────────────────────
 public void insertarEntorno(entorno e) {
 
@@ -154,7 +151,7 @@ public void insertarPatronVida(PatronVida p) {
     String sql =
         "INSERT INTO patron_vida (" +
         "valoracion_id,relacion_familiar,ingreso_economico,dependencia_economica," +
-        "estado_nutricional,cabello,mucosas,piel,labios,encias," +
+        "estado_nutricional,peso,talla,imc,cabello,mucosas,piel,labios,encias," +
         "nariz_orejas,unas,sistema_oseo,estado_general," +
         "kg_subidos,kg_perdidos,dentadura,guisa_alimentos," +
         "problema_cavidad_oral,problema_dental_comer,problema_digestion," +
@@ -182,11 +179,12 @@ public void insertarPatronVida(PatronVida p) {
         PreparedStatement ps = con.prepareStatement(sql)) {
 
         ps.setInt(1, p.getValoracionId());
-        ps.setString(2, nullIfBlank(p.getRelacionFamiliar()));
-        ps.setString(3, nullIfBlank(p.getIngresoEconomico()));
-        ps.setString(4, nullIfBlank(p.getDependenciaEconomica()));
-        ps.setString(5, nullIfBlank(p.getEstadoNutricional()));
-        ps.setString(6, nullIfBlank(p.getCabello()));
+
+        ps.setString(2,  nullIfBlank(p.getRelacionFamiliar()));
+        ps.setString(3,  nullIfBlank(p.getIngresoEconomico()));
+        ps.setString(4,  nullIfBlank(p.getDependenciaEconomica()));
+        ps.setString(5,  nullIfBlank(p.getEstadoNutricional()));
+        ps.setString(6,  nullIfBlank(p.getCabello()));
         ps.setString(7, nullIfBlank(p.getMucosas()));
         ps.setString(8, nullIfBlank(p.getPiel()));
         ps.setString(9, nullIfBlank(p.getLabios()));
@@ -199,19 +197,24 @@ public void insertarPatronVida(PatronVida p) {
         ps.setString(16, nullIfBlank(p.getKgPerdidos()));
         ps.setString(17, nullIfBlank(p.getDentadura()));
         ps.setString(18, nullIfBlank(p.getGuisaAlimentos()));
-        ps.setString(19, nullIfBlank(p.getProblemaCavidadOral()));
-        ps.setString(20, nullIfBlank(p.getProblemaDentalComer()));
-        ps.setString(21, nullIfBlank(p.getProblemaDigestion()));
-        ps.setString(22, nullIfBlank(p.getAlimentosPuedeComer()));
+
+        ps.setString(19, p.getProblemaCavidadOral());
+        ps.setString(20, p.getProblemaDentalComer());
+        ps.setString(21, p.getProblemaDigestion());
+
+        ps.setString(22, p.getAlimentosPuedeComer());
+
         ps.setString(23, p.getDesayuno());
         ps.setString(24, p.getComida());
         ps.setString(25, p.getCena());
+
         ps.setString(26, nullIfBlank(p.getCepilladoDientes()));
         ps.setString(27, nullIfBlank(p.getBano()));
         ps.setString(28, nullIfBlank(p.getCambioRopa()));
         ps.setString(29, p.getLavadoManos());
-        ps.setString(30, nullIfBlank(p.getEnfermedadPresente()));
-        ps.setString(31, nullIfBlank(p.getTieneTratamiento()));
+
+        ps.setString(30, p.getEnfermedadPresente());
+        ps.setString(31, p.getTieneTratamiento());
 
         ps.executeUpdate();
 
@@ -292,7 +295,10 @@ public void insertarPatronVida(PatronVida p) {
                 out.put("ingresoEconomico",    rs.getString("ingreso_economico"));
                 out.put("dependenciaEconomica",rs.getString("dependencia_economica"));
                 out.put("estadoNutricional",   rs.getString("estado_nutricional"));
-                out.put("cabello", rs.getString("cabello"));
+                out.put("peso", rs.getString("peso"));
+                out.put("talla", rs.getString("talla"));
+                out.put("cabello", rs.getString("imc"));
+                out.put("cabello",  rs.getString("cabello"));
                 out.put("mucosas",  rs.getString("mucosas"));
                 out.put("piel",     rs.getString("piel"));
                 out.put("labios",   rs.getString("labios"));
@@ -323,28 +329,9 @@ public void insertarPatronVida(PatronVida p) {
             }
         }
         
-                // Las secciones nuevas se recuperan desde el JSON íntegro guardado.
-        // Esto incluye las 30 respuestas MMSE, las 15 GDS y las 6 de Katz.
-        try (PreparedStatement ps = con.prepareStatement(
-                "SELECT seccion, payload FROM valoracion_secciones WHERE valoracion_id=? ORDER BY seccion")) {
-            ps.setInt(1, valoracionId);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    JSONObject payload = new JSONObject(rs.getString("payload"));
-                    for (String key : payload.keySet()) {
-                        out.put(key, payload.get(key));
-                    }
-                    out.put("seccionGuardada" + rs.getInt("seccion"), true);
-                }
-            }
-        }
-
-        // Indica el último bloque con datos persistidos; no presupone respuestas.
+                // Detectar siguiente sección sin completar
         int seccionActual = 0;
-        for (int i = 1; i <= 6; i++) {
-            if (out.optBoolean("seccionGuardada" + i, false)) seccionActual = Math.min(i + 1, 6);
-        }
-        if (seccionActual == 0 && out.has("tipoPiso")) seccionActual = 2;
+        if (out.has("tipoPiso")) seccionActual = 2;
         out.put("seccionActual", seccionActual);
     } catch (Exception e) { e.printStackTrace(); return null; }
     return out;

@@ -23,36 +23,16 @@ public class Loginservlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         res.setContentType("application/json;charset=UTF-8");
 
-        String correo = req.getParameter("correo");
+        String correo     = req.getParameter("correo");
         String contrasena = req.getParameter("contrasena");
-        String aceptaAviso = req.getParameter("aceptaConfidencialidad");
 
         JSONObject json = new JSONObject();
 
-        // Validación obligatoria del lado del servidor: no se confía solo en HTML/JavaScript.
-        if (correo == null || correo.trim().isEmpty()
-                || contrasena == null || contrasena.isEmpty()) {
-            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            json.put("ok", false);
-            json.put("mensaje", "Ingresa tu correo y contraseña.");
-            res.getWriter().print(json.toString());
-            return;
-        }
-
-        if (!"si".equals(aceptaAviso)) {
-            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            json.put("ok", false);
-            json.put("mensaje", "Para ingresar, es necesario seleccionar la casilla de aceptación del aviso de confidencialidad y manejo de datos personales.");
-            res.getWriter().print(json.toString());
-            return;
-        }
-
         try {
-            Usuario u = dao.autenticar(correo.trim(), contrasena);
+            Usuario u = dao.autenticar(correo, contrasena);
 
             if (u != null) {
                 HttpSession session = req.getSession(true);
-                req.changeSessionId();
                 session.setAttribute("usuario", u);
                 session.setMaxInactiveInterval(60 * 30); // 30 min
 

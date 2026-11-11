@@ -29,7 +29,7 @@ function recolectarSeccion0() {
 }
 
 function recolectarSeccion1() {
-  return Object.assign(recolectarSeccionCompleta(1), {
+  return {
     tipoPiso:           chks('tipoPiso'),
     tipoPared:          chks('tipoPared'),
     tipoTecho:          chks('tipoTecho'),
@@ -87,41 +87,14 @@ function recolectarSeccion1() {
 
         enfermedadPresente: val('enfermedadPresente'),
         tieneTratamiento: val('tieneTratamiento')
-  });
+  };
 }
 
-// Recolecta los controles reales de una sección. Los radios sin respuesta
-// no se inventan y los checkbox se conservan como arreglos.
-function recolectarSeccionCompleta(indice) {
-  var contenedor = document.getElementById('sec-' + indice);
-  if (!contenedor) throw new Error('No se encontró la sección ' + indice);
-  var datos = {};
-  var gruposCheckbox = {};
-  var gruposRadio = {};
-  contenedor.querySelectorAll('input, select, textarea').forEach(function(el, index) {
-    if (el.type === 'button' || el.type === 'submit' || el.type === 'reset') return;
-    // Los campos heredados sin id/name también se guardan por posición estable.
-    var clave = el.name || el.id || ('__control_sec_' + indice + '_' + index);
-    if (el.type === 'radio') {
-      if (!Object.prototype.hasOwnProperty.call(gruposRadio, clave)) gruposRadio[clave] = null;
-      if (el.checked) gruposRadio[clave] = el.value;
-    } else if (el.type === 'checkbox') {
-      if (!gruposCheckbox[clave]) gruposCheckbox[clave] = [];
-      if (el.checked) gruposCheckbox[clave].push(el.value);
-    } else {
-      datos[clave] = el.value;
-    }
-  });
-  Object.keys(gruposCheckbox).forEach(function(clave) { datos[clave] = gruposCheckbox[clave]; });
-  Object.keys(gruposRadio).forEach(function(clave) { datos[clave] = gruposRadio[clave]; });
-  return datos;
-}
-
-function recolectarSeccion2() { return recolectarSeccionCompleta(2); }
-function recolectarSeccion3() { return recolectarSeccionCompleta(3); }
-function recolectarSeccion4() { return recolectarSeccionCompleta(4); }
-function recolectarSeccion5() { return recolectarSeccionCompleta(5); }
-function recolectarSeccion6() { return recolectarSeccionCompleta(6); }
+function recolectarSeccion2() { return { seccion: 2 }; }
+function recolectarSeccion3() { return { seccion: 3 }; }
+function recolectarSeccion4() { return { seccion: 4 }; }
+function recolectarSeccion5() { return { seccion: 5 }; }
+function recolectarSeccion6() { return { seccion: 6 }; }
 
 // =============================================
 // GUARDADO POR SECCIÓN
@@ -151,13 +124,12 @@ async function guardarSeccion(seccion) {
       var res  = await fetch('../api/valoraciones', { method: 'POST', body: body });
       var json = await res.json();
 
-      if (res.ok && json.ok) {
+      if (json.ok) {
         valoracionId = json.valoracionId;
         sessionStorage.setItem('valoracionId', valoracionId);
         console.log('Valoración creada con ID:', valoracionId);
       } else {
         mostrarToast('Error al guardar datos del paciente: ' + (json.mensaje || ''), true);
-        return false;
       }
 
     } else {
@@ -181,19 +153,16 @@ async function guardarSeccion(seccion) {
       });
       var json = await res.json();
 
-      if (!res.ok || !json.ok) {
-        mostrarToast('Error al guardar sección ' + (seccion + 1) + ': ' + (json.mensaje || ''), true);
-        return false;
+      if (!json.ok) {
+        mostrarToast('Error al guardar sección ' + (seccion + 1), true);
       }
     }
 
     mostrarToast('Guardado ✓');
-    return true;
 
   } catch (e) {
     console.error('Error guardando sección', seccion, e);
     mostrarToast('Error de conexión al guardar.', true);
-    return false;
   }
 }
 
@@ -202,8 +171,9 @@ async function guardarSeccion(seccion) {
 // =============================================
 
 async function finalizarYGuardar() {
-  var guardado = await guardarSeccion(6);
-  if (!guardado || !valoracionId) return;
+  await guardarSeccion(6);
+
+  if (!valoracionId) return;
 
   try {
     var res  = await fetch('../api/valoraciones', {
@@ -212,7 +182,7 @@ async function finalizarYGuardar() {
     });
     var json = await res.json();
 
-    if (res.ok && json.ok) {
+    if (json.ok) {
       mostrarToast('Valoración completada ✓');
       // Generar PDF después de guardar
       setTimeout(function() { finalizarValoracion(); }, 800);
@@ -279,13 +249,9 @@ async function cargarDatosGuardados() {
   valoracionId = id;
 
   try {
-    var res = await fetch('../api/valoraciones?id=' + encodeURIComponent(id), {
-      credentials: 'same-origin',
-      cache: 'no-store'
-    });
-    if (!res.ok) throw new Error('El servidor rechazó la consulta de la valoración (HTTP ' + res.status + ').');
+    var res  = await fetch('../api/valoraciones?id=' + id);
     var json = await res.json();
-    if (!json.ok) throw new Error(json.mensaje || 'No se pudieron recuperar los datos guardados.');
+    if (!json.ok) return;
 
     // Sección 1 - paciente
     setVal('nombrePaciente',  json.nombrePaciente);
@@ -353,50 +319,12 @@ async function cargarDatosGuardados() {
     setChks('lavadoManos', json.lavadoManos);
     setVal('enfermedadPresente', json.enfermedadPresente);
     setVal('tieneTratamiento',   json.tieneTratamiento);
-
-    // Restaurar cualquier control persistido, incluidas las respuestas de escalas.
-    // Los controles que nunca se respondieron permanecen sin selección.
-    Object.keys(json).forEach(function(clave) {
-      if (clave === 'ok' || clave === 'seccionActual' || /^seccionGuardada/.test(clave)) return;
-      var valor = json[clave];
-      var controles;
-      var indiceControl = /^__control_sec_(\\d+)_(\\d+)$/.exec(clave);
-      if (indiceControl) {
-        var contenedorSeccion = document.getElementById('sec-' + indiceControl[1]);
-        var todos = contenedorSeccion
-          ? Array.from(contenedorSeccion.querySelectorAll('input, select, textarea')) : [];
-        var pos = parseInt(indiceControl[2], 10);
-        controles = todos[pos] ? [todos[pos]] : [];
-      } else {
-        controles = document.querySelectorAll('[name="' + CSS.escape(clave) + '"]');
-      }
-      if (!controles.length) {
-        var porId = document.getElementById(clave);
-        if (porId && valor != null && typeof valor !== 'object') porId.value = valor;
-        return;
-      }
-      if (controles[0].type === 'radio') {
-        controles.forEach(function(el) { el.checked = String(el.value) === String(valor); });
-      } else if (controles[0].type === 'checkbox') {
-        var seleccionados = Array.isArray(valor) ? valor.map(String) : [];
-        controles.forEach(function(el) { el.checked = seleccionados.indexOf(String(el.value)) !== -1; });
-      } else if (valor != null && typeof valor !== 'object') {
-        controles[0].value = valor;
-      }
-    });
-    if (typeof calcularMmse === 'function') calcularMmse();
-    if (typeof calcularGds === 'function') calcularGds();
-    if (typeof calcularKatz === 'function') calcularKatz();
-
-    // No asumir que una valoración histórica contiene respuestas que nunca se guardaron.
-    window.valoracionDatosCompletos = [1, 2, 3, 4, 5, 6].every(function(n) {
-      return json['seccionGuardada' + n] === true;
-    });
-
-    return json.seccionActual || 0;
+// Al final del bloque try, antes del catch:
+// Determinar última sección con datos
+return json.seccionActual || 0;
   } catch (e) {
-    console.error('Error cargando valoración:', e);
-    throw e;
+      
+    console.error('Error cargando:', e); return 0;
   }
 }
 

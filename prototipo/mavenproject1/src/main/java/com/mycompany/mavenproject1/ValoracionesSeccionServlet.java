@@ -1,104 +1,208 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
+ */
 package com.mycompany.mavenproject1;
 
 import java.io.BufferedReader;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import org.json.JSONObject;
 
 /**
- * Guarda el contenido íntegro de cada sección como JSON versionado.
- * La tabla se crea mediante la migración SQL incluida en database/migrations.
+ *
+ * @author Admin
  */
 @WebServlet("/api/valoraciones/seccion")
 public class ValoracionesSeccionServlet extends HttpServlet {
 
+    private final ValoracionDao dao = new ValoracionDao();
+
     @Override
-    protected void doPost(HttpServletRequest req, HttpServletResponse res)
+    protected void doPost(HttpServletRequest req,
+                          HttpServletResponse res)
             throws ServletException, IOException {
+
         req.setCharacterEncoding("UTF-8");
         res.setContentType("application/json;charset=UTF-8");
 
-        HttpSession session = req.getSession(false);
-        Usuario usuario = session == null ? null : (Usuario) session.getAttribute("usuario");
-        if (usuario == null) {
-            responder(res, 401, false, "Sesión no válida.");
-            return;
-        }
+        JSONObject respuesta = new JSONObject();
 
         try {
-            StringBuilder body = new StringBuilder();
-            try (BufferedReader reader = req.getReader()) {
-                String line;
-                while ((line = reader.readLine()) != null) body.append(line);
+
+            StringBuilder sb = new StringBuilder();
+            String linea;
+
+            try (BufferedReader br = req.getReader()) {
+                while ((linea = br.readLine()) != null) {
+                    sb.append(linea);
+                }
             }
-            JSONObject json = new JSONObject(body.toString());
+
+            JSONObject json = new JSONObject(sb.toString());
+
             int valoracionId = json.getInt("valoracionId");
-            int seccion = json.getInt("seccion");
+            int seccion      = json.getInt("seccion");
 
-            if (valoracionId <= 0 || seccion < 1 || seccion > 6) {
-                responder(res, 400, false, "Identificador o sección inválidos.");
-                return;
-            }
-            if (!esPropietario(valoracionId, usuario.getId())) {
-                responder(res, 403, false, "No tienes permiso para modificar esta valoración.");
-                return;
-            }
+            switch (seccion) {
 
-            // El payload se conserva completo, incluidos radios, listas y respuestas
-            // dinámicas de MMSE, GDS-15 y Katz. El upsert permite guardar varias veces.
-            JSONObject payload = new JSONObject(json.toString());
-            payload.remove("valoracionId");
-            payload.remove("seccion");
+                case 1:
+                    guardarEntorno(json);
+                    guardarPatronVida(json);
+                    break;
 
-            String sql = "INSERT INTO valoracion_secciones "
-                    + "(valoracion_id, seccion, payload) VALUES (?, ?, ?) "
-                    + "ON DUPLICATE KEY UPDATE payload=VALUES(payload), "
-                    + "fecha_actualizacion=CURRENT_TIMESTAMP";
-            try (Connection con = Dbconnection.getConnection();
-                 PreparedStatement ps = con.prepareStatement(sql)) {
-                ps.setInt(1, valoracionId);
-                ps.setInt(2, seccion);
-                ps.setString(3, payload.toString());
-                // En MySQL, INSERT ... ON DUPLICATE KEY UPDATE puede devolver
-                // 2 cuando actualiza una fila existente. No interpretar ese valor
-                // como fallo: cualquier ejecución sin SQLException se considera guardada.
-                ps.executeUpdate();
+                case 2:
+                    // guardar sección 3
+                    break;
+
+                case 3:
+                    // guardar sección 4
+                    break;
+
+                case 4:
+                    // guardar sección 5
+                    break;
+
+                case 5:
+                    // guardar sección 6
+                    break;
+
+                case 6:
+                    // guardar sección 7
+                    break;
             }
 
-            responder(res, 200, true, "Sección guardada.");
-        } catch (org.json.JSONException e) {
-            responder(res, 400, false, "El contenido enviado no es JSON válido.");
+            respuesta.put("ok", true);
+
         } catch (Exception e) {
-            getServletContext().log("Error guardando sección de valoración", e);
-            responder(res, 500, false, "No se pudo guardar la sección. Intenta nuevamente.");
+
+            e.printStackTrace();
+
+            res.setStatus(500);
+
+            respuesta.put("ok", false);
+            respuesta.put("mensaje", e.getMessage());
         }
+
+        res.getWriter().print(respuesta.toString());
     }
 
-    private boolean esPropietario(int valoracionId, int usuarioId)
-            throws Exception {
-        String sql = "SELECT 1 FROM valoraciones WHERE id=? AND usuario_id=? AND completada=0";
-        try (Connection con = Dbconnection.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, valoracionId);
-            ps.setInt(2, usuarioId);
-            try (ResultSet rs = ps.executeQuery()) {
-                return rs.next();
-            }
-        }
-    }
+    
+    private void guardarEntorno(JSONObject json) {
 
-    private void responder(HttpServletResponse res, int status, boolean ok, String mensaje)
-            throws IOException {
-        res.setStatus(status);
-        res.getWriter().print(new JSONObject()
-                .put("ok", ok).put("mensaje", mensaje).toString());
-    }
+    entorno e = new entorno();
+
+    e.setValoracionId(json.getInt("valoracionId"));
+
+    e.setTipoPiso(
+        json.getJSONArray("tipoPiso").toString()
+    );
+
+    e.setTipoPared(
+        json.getJSONArray("tipoPared").toString()
+    );
+
+    e.setTipoTecho(
+        json.getJSONArray("tipoTecho").toString()
+    );
+
+    e.setTipoLuz(
+        json.getJSONArray("tipoLuz").toString()
+    );
+
+    e.setAbastecimientoAgua(
+        json.getJSONArray("abastecimientoAgua").toString()
+    );
+
+    e.setPurificacionAgua(
+        json.getJSONArray("purificacionAgua").toString()
+    );
+
+    e.setDrenaje(
+        json.getJSONArray("drenaje").toString()
+    );
+
+    e.setTratamientoBasura(
+        json.getJSONArray("tratamientoBasura").toString()
+    );
+
+    e.setFaunaNociva(
+        json.getJSONArray("faunaNociva").toString()
+    );
+
+    e.setAnimalesDomesticos(
+        json.getJSONArray("animalesDomesticos").toString()
+    );
+
+    e.setNumAnimales(
+        json.optString("numAnimales", null)
+    );
+
+    e.setAnimalesVacunados(
+        json.optString("animalesVacunados", null)
+    );
+
+    dao.insertarEntorno(e);
+}
+    
+    private void guardarPatronVida(JSONObject json) {
+
+    PatronVida p = new PatronVida();
+
+    p.setValoracionId(json.getInt("valoracionId"));
+
+    p.setRelacionFamiliar(json.optString("relacionFamiliar"));
+    p.setIngresoEconomico(json.optString("ingresoEconomico"));
+    p.setDependenciaEconomica(json.optString("dependenciaEconomica"));
+
+    p.setEstadoNutricional(json.optString("estadoNutricional"));
+
+    p.setCabello(json.optString("cabello"));
+    p.setMucosas(json.optString("mucosas"));
+    p.setPiel(json.optString("piel"));
+    p.setLabios(json.optString("labios"));
+    p.setEncias(json.optString("encias"));
+
+    p.setNarizOrejas(json.optString("narizOrejas"));
+    p.setUnas(json.optString("unas"));
+    p.setSistemaOseo(json.optString("sistemaOseo"));
+    p.setEstadoGeneral(json.optString("estadoGeneral"));
+
+    p.setKgSubidos(json.optString("kgSubidos"));
+    p.setKgPerdidos(json.optString("kgPerdidos"));
+
+    p.setDentadura(json.optString("dentadura"));
+    p.setGuisaAlimentos(json.optString("guisaAlimentos"));
+
+    p.setProblemaCavidadOral(json.optString("problemaCavidadOral"));
+    p.setProblemaDentalComer(json.optString("problemaDentalComer"));
+    p.setProblemaDigestion(json.optString("problemaDigestion"));
+
+    p.setAlimentosPuedeComer(json.optString("alimentosPuedeComer"));
+
+    p.setDesayuno(json.getJSONArray("desayuno").toString());
+    p.setComida(json.getJSONArray("comida").toString());
+    p.setCena(json.getJSONArray("cena").toString());
+
+    p.setCepilladoDientes(json.optString("cepilladoDientes"));
+    p.setBano(json.optString("bano"));
+    p.setCambioRopa(json.optString("cambioRopa"));
+
+    p.setLavadoManos(
+        json.getJSONArray("lavadoManos").toString()
+    );
+
+    p.setEnfermedadPresente(json.optString("enfermedadPresente"));
+    p.setTieneTratamiento(json.optString("tieneTratamiento"));
+
+    dao.insertarPatronVida(p);
+}
+    
 }

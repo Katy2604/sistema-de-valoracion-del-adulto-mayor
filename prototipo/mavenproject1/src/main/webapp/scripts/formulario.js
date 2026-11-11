@@ -148,11 +148,66 @@ function calcularKatz() {
 // =============================================
 // FINALIZAR VALORACIÓN
 // =============================================
-function finalizarValoracion() {
-  // La valoración ya fue guardada por finalizarYGuardar().
-  // Imprimimos el formulario recuperado desde MySQL: no se crea otro registro
-  // ni se envían respuestas duplicadas a un servlet legado.
-  window.print();
+async function finalizarValoracion() {
+  //Recopilar y enviar los datos al Servlet para guardarlos en MySQL
+  const datosFormulario = {
+      nombrePaciente: document.getElementByID('nombrePaciente')?.value || '',
+      edadPaciente: document.getElementById('edadPaciente')?.value || '',
+      generoPaciente: document.getElementById('generoPaciente')?.value || '',
+      lugarNacimiento: document.getElementById('lugarNacimiento')?.value || '',
+      domicilio: document.getElementById('domicilio')?.value || '',
+      fechaIngreso: document.getElementById('fechaIngreso')?.value || '',
+      religion: document.getElementById('religion')?.value || '',
+      escolaridad: document.getElementById('escolaridad')?.value || '',
+      estadoCivil: document.getElementById('estadoCivil')?.value || '',
+      ocupacion: document.getElementById('ocupacion')?.value || '',
+      dependencia: document.getElementById('dependencia')?.value || '',
+      cuandoAcude: document.getElementById('cuandoAcude')?.value || '',
+      capazDecisiones: document.getElementById('capazDecisiones')?.value || '',
+      responsable: document.getElementById('responsable')?.value || '',
+      llevaTratamiento: document.getElementById('llevaTratamiento')?.value || '',
+      
+      //Puntuajes de las escalas (Tablas mmse, gds15, katz)
+      mmsePuntaje: document.getElementById('puntaje-mmse')?.textContent || '0',
+      mmseInterpretacion: document.getElementById('inter-mmse')?.textContent || '',
+      gdsPuntaje: document.getElementById('puntaje-gds')?.textContent || '0',
+      gdsInterpretacion: document.getElementById('inter-gds')?.textContent || '',
+      katzpuntaje: document.getElementById('puntaje-katz')?.textContent || '0',
+      katzInterpretacion: document.getElementById('inter-katz')?.textContent || ''
+  };
+  
+  try{
+      //Enviar los datos al Servlet de Java mediante fetch
+      const respuesta = await fetch('../GuardarValoracionServlet', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8'
+      },
+      body: JSON.stringify(datosFormulario)
+        });
+        
+      const resultado = await respuesta.json();
+      if (resultado.success){
+          alert('¡Valoración guardada exitosamente!');
+          
+          //Opcionalmente, abrir el resumen para abrir
+          const resumen = generarResumenHTML();
+          const ventana = window.open('', '_blank');
+          ventana.document.write(resumen);
+          ventana.document.close();
+          ventana.focus();
+      }else{
+          alert('Error al guardar la valoracion:' + resultado.message);
+      }
+    }catch (error){
+        console.error('Error al conectar con el servidor', error);
+  }
+  const resumen = generarResumenHTML();
+  const ventana = window.open('', '_blank');
+  ventana.document.write(resumen);
+  ventana.document.close();
+  ventana.focus();
+  ventana.print();
 }
 
 function generarResumenHTML() {

@@ -13,9 +13,6 @@ public class PatronVida {
     private String ingresoEconomico;
     private String dependenciaEconomica;
     private String estadoNutricional;
-    private String peso;
-    private String talla;
-    private String imc;
 
     private String cabello;
     private String mucosas;
@@ -101,15 +98,6 @@ public class PatronVida {
     public void setEstadoNutricional(String estadoNutricional) {
         this.estadoNutricional = estadoNutricional;
     }
-
-    public String getPeso() { return peso; }
-    public void setPeso(String peso) { this.peso = peso; }
-
-    public String getTalla() { return talla; }
-    public void setTalla(String talla) { this.talla = talla; }
-
-    public String getImc() { return imc; }
-    public void setImc(String imc) { this.imc = imc; }
 
     public String getCabello() {
         return cabello;
