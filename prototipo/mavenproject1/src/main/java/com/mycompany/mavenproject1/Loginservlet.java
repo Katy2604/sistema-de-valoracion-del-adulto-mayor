@@ -29,12 +29,20 @@ public class Loginservlet extends HttpServlet {
 
         JSONObject json = new JSONObject();
 
+        // Validación obligatoria del lado del servidor: no se confía solo en HTML/JavaScript.
         if (correo == null || correo.trim().isEmpty()
-                || contrasena == null || contrasena.isEmpty()
-                || !"si".equals(aceptaAviso)) {
+                || contrasena == null || contrasena.isEmpty()) {
             res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             json.put("ok", false);
-            json.put("mensaje", "Completa tus credenciales y acepta el aviso de confidencialidad.");
+            json.put("mensaje", "Ingresa tu correo y contraseña.");
+            res.getWriter().print(json.toString());
+            return;
+        }
+
+        if (!"si".equals(aceptaAviso)) {
+            res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            json.put("ok", false);
+            json.put("mensaje", "Para ingresar, es necesario seleccionar la casilla de aceptación del aviso de confidencialidad y manejo de datos personales.");
             res.getWriter().print(json.toString());
             return;
         }
