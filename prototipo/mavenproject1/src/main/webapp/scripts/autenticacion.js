@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorMsg.textContent = '';
+        var checkConf = document.getElementById('checkConf');
+        if (checkConf && !checkConf.checked) {
+            errorMsg.textContent = 'Debes aceptar el aviso de confidencialidad para continuar.';
+            checkConf.focus();
+            return;
+        }
         btnLogin.disabled = true;
         btnLogin.textContent = 'Ingresando...';
 
