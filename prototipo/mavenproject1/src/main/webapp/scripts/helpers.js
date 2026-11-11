@@ -101,7 +101,7 @@ function recolectarSeccionCompleta(indice) {
   contenedor.querySelectorAll('input, select, textarea').forEach(function(el, index) {
     if (el.type === 'button' || el.type === 'submit' || el.type === 'reset') return;
     // Los campos heredados sin id/name también se guardan por posición estable.
-    var clave = el.name || el.id || ('__control_' + index);
+    var clave = el.name || el.id || ('__control_sec_' + indice + '_' + index);
     if (el.type === 'radio') {
       if (!Object.prototype.hasOwnProperty.call(gruposRadio, clave)) gruposRadio[clave] = null;
       if (el.checked) gruposRadio[clave] = el.value;
@@ -356,12 +356,12 @@ async function cargarDatosGuardados() {
       if (clave === 'ok' || clave === 'seccionActual' || /^seccionGuardada/.test(clave)) return;
       var valor = json[clave];
       var controles;
-      var indiceControl = /^__control_(\\d+)$/.exec(clave);
+      var indiceControl = /^__control_sec_(\\d+)_(\\d+)$/.exec(clave);
       if (indiceControl) {
-        var seccion = document.getElementById('sec-' + (parseInt(indiceControl[1], 10) >= 0 ? 1 : 1));
-        // La clave posicional se resuelve dentro de la sección que contiene el control.
-        var todos = Array.from(document.querySelectorAll('.seccion-form input, .seccion-form select, .seccion-form textarea'));
-        var pos = parseInt(indiceControl[1], 10);
+        var contenedorSeccion = document.getElementById('sec-' + indiceControl[1]);
+        var todos = contenedorSeccion
+          ? Array.from(contenedorSeccion.querySelectorAll('input, select, textarea')) : [];
+        var pos = parseInt(indiceControl[2], 10);
         controles = todos[pos] ? [todos[pos]] : [];
       } else {
         controles = document.querySelectorAll('[name="' + CSS.escape(clave) + '"]');
