@@ -23,16 +23,28 @@ public class Loginservlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         res.setContentType("application/json;charset=UTF-8");
 
-        String correo     = req.getParameter("correo");
+        String correo = req.getParameter("correo");
         String contrasena = req.getParameter("contrasena");
+        String aceptaAviso = req.getParameter("aceptaConfidencialidad");
 
         JSONObject json = new JSONObject();
 
+        if (correo == null || correo.trim().isEmpty()
+                || contrasena == null || contrasena.isEmpty()
+                || !"si".equals(aceptaAviso)) {
+            res.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            json.put("ok", false);
+            json.put("mensaje", "Completa tus credenciales y acepta el aviso de confidencialidad.");
+            res.getWriter().print(json.toString());
+            return;
+        }
+
         try {
-            Usuario u = dao.autenticar(correo, contrasena);
+            Usuario u = dao.autenticar(correo.trim(), contrasena);
 
             if (u != null) {
                 HttpSession session = req.getSession(true);
+                req.changeSessionId();
                 session.setAttribute("usuario", u);
                 session.setMaxInactiveInterval(60 * 30); // 30 min
 
