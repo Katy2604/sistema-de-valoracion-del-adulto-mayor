@@ -19,7 +19,7 @@ window.onload = function() {
         botonCerrar.onclick = function() {
           sessionStorage.removeItem('modoLectura');
           sessionStorage.removeItem('accionPDF');
-          window.location.href = 'dashboard-estudiante.html';
+          window.location.href = sessionStorage.getItem('usuarioRol') === 'maestro' ? 'dashboard-maestro.html' : 'dashboard-estudiante.html';
         };
       }
     }
