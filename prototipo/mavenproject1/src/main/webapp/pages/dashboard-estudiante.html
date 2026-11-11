@@ -517,7 +517,7 @@
               <th>Fecha</th>
               <th>Estado</th>
               <th>Retroalimentación</th>
-              <th>Acción</th>
+              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -611,7 +611,8 @@ async function cargarValoraciones() {
         : '<span style="color:#bbb; font-size:0.78rem;">Sin retroalimentación</span>';
 
       var accion = v.completada
-        ? '<button class="btn-ver" onclick="verValoracion(' + v.id + ')">Ver</button>'
+        ? '<button class="btn-ver" onclick="verValoracion(' + v.id + ')">Ver</button> ' +
+          '<button class="btn-ver" onclick="descargarPDF(' + v.id + ')">Imprimir / PDF</button>'
         : '<button class="btn-ver" onclick="continuarValoracion(' + v.id + ')">Continuar</button>';
 
       return '<tr>' +
@@ -640,7 +641,15 @@ function continuarValoracion(id) {
 
 function verValoracion(id) {
   sessionStorage.setItem('valoracionId', id);
-  // Por ahora redirige al formulario — se puede cambiar a vista de resumen después
+  sessionStorage.setItem('modoLectura', 'true');
+  sessionStorage.removeItem('accionPDF');
+  window.location.href = 'formularioValoracion.html';
+}
+
+function descargarPDF(id) {
+  sessionStorage.setItem('valoracionId', id);
+  sessionStorage.setItem('modoLectura', 'true');
+  sessionStorage.setItem('accionPDF', 'true');
   window.location.href = 'formularioValoracion.html';
 }
 
