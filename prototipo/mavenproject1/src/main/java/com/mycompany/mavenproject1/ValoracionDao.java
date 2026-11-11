@@ -292,7 +292,6 @@ public void insertarPatronVida(PatronVida p) {
                 out.put("ingresoEconomico",    rs.getString("ingreso_economico"));
                 out.put("dependenciaEconomica",rs.getString("dependencia_economica"));
                 out.put("estadoNutricional",   rs.getString("estado_nutricional"));
-                out.put("imc",     rs.getString("imc"));
                 out.put("cabello", rs.getString("cabello"));
                 out.put("mucosas",  rs.getString("mucosas"));
                 out.put("piel",     rs.getString("piel"));
