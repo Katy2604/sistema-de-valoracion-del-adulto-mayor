@@ -70,7 +70,7 @@ jobs:
           VALUES (@valoracion_id, 5, JSON_OBJECT('mmse0', '0'))
           ON DUPLICATE KEY UPDATE payload=VALUES(payload);
           SELECT CASE
-            WHEN COUNT(*)=1 AND JSON_UNQUOTE(JSON_EXTRACT(MAX(payload), '$.mmse0'))='0'
+            WHEN COUNT(*)=1 AND MAX(JSON_UNQUOTE(JSON_EXTRACT(payload, '$.mmse0')))='0'
             THEN 'OK' ELSE 'ERROR' END AS resultado
           FROM valoracion_secciones WHERE valoracion_id=@valoracion_id AND seccion=5;
           SQL
