@@ -53,12 +53,20 @@ public class RetroalimentacionServlet extends HttpServlet {
         }
 
         try {
+            int valoracionId = Integer.parseInt(valoracionIdStr);
+            if (valoracionId <= 0 || !esValoracionCompletada(valoracionId)) {
+                res.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                json.put("ok", false);
+                json.put("mensaje", "La valoración no existe o todavía no está completada.");
+                imprimir(res, json.toString());
+                return;
+            }
+
             Retroalimentacion r = new Retroalimentacion();
-            r.setValoracionId(Integer.parseInt(valoracionIdStr));
+            r.setValoracionId(valoracionId);
             r.setMaestroId(maestro.getId());
             r.setComentario(comentario.trim());
             dao.insertar(r);
-
             json.put("ok", true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -68,6 +76,19 @@ public class RetroalimentacionServlet extends HttpServlet {
         }
 
         imprimir(res, json.toString());
+    }
+
+    private boolean esValoracionCompletada(int id) throws Exception {
+        String sql = "SELECT 1 FROM valoraciones v "
+                + "JOIN usuarios u ON u.id=v.usuario_id "
+                + "WHERE v.id=? AND v.completada=1 AND u.rol='estudiante'";
+        try (java.sql.Connection con = Dbconnection.getConnection();
+             java.sql.PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
     private void imprimir(HttpServletResponse res, String texto) throws IOException {
