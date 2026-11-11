@@ -348,7 +348,7 @@ public void insertarPatronVida(PatronVida p) {
         // Indica el último bloque con datos persistidos; no presupone respuestas.
         int seccionActual = 0;
         for (int i = 1; i <= 6; i++) {
-            if (out.optBoolean("seccionGuardada" + i, false)) seccionActual = i + 1;
+            if (out.optBoolean("seccionGuardada" + i, false)) seccionActual = Math.min(i + 1, 6);
         }
         if (seccionActual == 0 && out.has("tipoPiso")) seccionActual = 2;
         out.put("seccionActual", seccionActual);
