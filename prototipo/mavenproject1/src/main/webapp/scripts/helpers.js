@@ -279,9 +279,13 @@ async function cargarDatosGuardados() {
   valoracionId = id;
 
   try {
-    var res  = await fetch('../api/valoraciones?id=' + id);
+    var res = await fetch('../api/valoraciones?id=' + encodeURIComponent(id), {
+      credentials: 'same-origin',
+      cache: 'no-store'
+    });
+    if (!res.ok) throw new Error('El servidor rechazó la consulta de la valoración (HTTP ' + res.status + ').');
     var json = await res.json();
-    if (!json.ok) return;
+    if (!json.ok) throw new Error(json.mensaje || 'No se pudieron recuperar los datos guardados.');
 
     // Sección 1 - paciente
     setVal('nombrePaciente',  json.nombrePaciente);
@@ -391,8 +395,8 @@ async function cargarDatosGuardados() {
 
     return json.seccionActual || 0;
   } catch (e) {
-      
-    console.error('Error cargando:', e); return 0;
+    console.error('Error cargando valoración:', e);
+    throw e;
   }
 }
 
