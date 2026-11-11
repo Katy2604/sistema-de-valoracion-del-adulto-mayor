@@ -1,0 +1,26 @@
+name: SVAM - compilación Maven
+
+on:
+  push:
+    branches:
+      - main
+      - mejoras/valoraciones-pdf
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Configurar Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+      - name: Compilar aplicación WAR
+        working-directory: prototipo/mavenproject1
+        run: mvn --batch-mode --no-transfer-progress clean verify
