@@ -35,7 +35,7 @@ public class ValoracionesServlet extends HttpServlet {
             String vidParam = req.getParameter("valoracionId");
             if (vidParam != null && !vidParam.trim().isEmpty()) {
                 valoracionId = Integer.parseInt(vidParam.trim());
-                if (!esPropietario(valoracionId, usuario.getId())) {
+                if (!esEditable(valoracionId, usuario.getId())) {
                     responder(res, 403, new JSONObject().put("ok", false)
                             .put("mensaje", "No tienes permiso para modificar esta valoración."));
                     return;
@@ -166,7 +166,16 @@ public class ValoracionesServlet extends HttpServlet {
     }
 
     private boolean esPropietario(int id, int usuarioId) throws Exception {
-        String sql = "SELECT 1 FROM valoraciones WHERE id=? AND usuario_id=? AND completada=0";
+        return existeRelacion(id, usuarioId, false);
+    }
+
+    private boolean esEditable(int id, int usuarioId) throws Exception {
+        return existeRelacion(id, usuarioId, true);
+    }
+
+    private boolean existeRelacion(int id, int usuarioId, boolean soloIncompletas) throws Exception {
+        String sql = "SELECT 1 FROM valoraciones WHERE id=? AND usuario_id=?"
+                + (soloIncompletas ? " AND completada=0" : "");
         try (Connection con = Dbconnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, id);
@@ -174,7 +183,6 @@ public class ValoracionesServlet extends HttpServlet {
             try (ResultSet rs = ps.executeQuery()) { return rs.next(); }
         }
     }
-
     private java.util.Map<String, String> parseParams(String body) throws IOException {
         java.util.Map<String, String> map = new java.util.LinkedHashMap<>();
         if (body == null || body.trim().isEmpty()) return map;
