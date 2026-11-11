@@ -517,7 +517,7 @@
               <th>Fecha</th>
               <th>Estado</th>
               <th>Retroalimentación</th>
-              <th>Acción</th>
+              <th>Acciones</th>
             </tr>
           </thead>
 
@@ -573,6 +573,7 @@ async function verificarSesion() {
 async function cargarValoraciones() {
   try {
     var res    = await fetch('../api/mis-valoraciones');
+    if (!res.ok) throw new Error('El servidor no pudo consultar el historial.');
     var lista  = await res.json();
     var tbody  = document.getElementById('tablaValoraciones');
 
@@ -611,12 +612,13 @@ async function cargarValoraciones() {
         : '<span style="color:#bbb; font-size:0.78rem;">Sin retroalimentación</span>';
 
       var accion = v.completada
-        ? '<button class="btn-ver" onclick="verValoracion(' + v.id + ')">Ver</button>'
+        ? '<button class="btn-ver" onclick="verValoracion(' + v.id + ')">Ver</button> ' +
+          '<button class="btn-ver" onclick="descargarPDF(' + v.id + ')">Imprimir / PDF</button>'
         : '<button class="btn-ver" onclick="continuarValoracion(' + v.id + ')">Continuar</button>';
 
       return '<tr>' +
         '<td>#V-' + String(v.id).padStart(4, '0') + '</td>' +
-        '<td>' + (v.nombrePaciente || 'Sin nombre') + '</td>' +
+        '<td>' + escHtml(v.nombrePaciente || 'Sin nombre') + '</td>' +
         '<td>' + formatearFecha(v.fechaRegistro) + '</td>' +
         '<td>' + estadoBadge + '</td>' +
         '<td>' + retro + '</td>' +
@@ -640,12 +642,30 @@ function continuarValoracion(id) {
 
 function verValoracion(id) {
   sessionStorage.setItem('valoracionId', id);
-  // Por ahora redirige al formulario — se puede cambiar a vista de resumen después
+  sessionStorage.setItem('modoLectura', 'true');
+  sessionStorage.removeItem('accionPDF');
+  window.location.href = 'formularioValoracion.html';
+}
+
+function descargarPDF(id) {
+  sessionStorage.setItem('valoracionId', id);
+  sessionStorage.setItem('modoLectura', 'true');
+  sessionStorage.setItem('accionPDF', 'true');
   window.location.href = 'formularioValoracion.html';
 }
 
 function cerrarSesion() {
   window.location.href = '../api/logout';
+}
+
+function escHtml(valor) {
+  return String(valor).replace(/[&<>"']/g, function(caracter) {
+    if (caracter === '&') return '&amp;';
+    if (caracter === '<') return '&lt;';
+    if (caracter === '>') return '&gt;';
+    if (caracter === '"') return '&quot;';
+    return '&#39;';
+  });
 }
 
 function formatearFecha(ts) {

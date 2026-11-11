@@ -1,0 +1,80 @@
+name: SVAM - compilación Maven
+
+on:
+  push:
+    branches:
+      - main
+      - mejoras/valoraciones-pdf
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Configurar Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+      - name: Compilar aplicación WAR
+        working-directory: prototipo/mavenproject1
+        run: mvn --batch-mode --no-transfer-progress clean verify
+      - name: Validar sintaxis de JavaScript
+        working-directory: prototipo/mavenproject1
+        run: find src/main/webapp/scripts -type f -name '*.js' -print0 | xargs -0 -n1 node --check
+      - name: Comprobar páginas, recursos y contratos críticos
+        working-directory: prototipo/mavenproject1
+        run: node tests/svam-static-checks.js
+
+  database-migration-check:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: svam_test_password
+          MYSQL_DATABASE: valoracion_adulto_mayor
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -psvam_test_password"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Obtener código
+        uses: actions/checkout@v4
+      - name: Aplicar esquema original en MySQL limpio
+        run: mysql -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor < "Creacion de tablas SVAM.sql"
+      - name: Aplicar migración de respuestas
+        run: mysql -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor < database/migrations/2026-11-11_create_valoracion_secciones.sql
+      - name: Verificar que la migración sea repetible
+        run: mysql -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor < database/migrations/2026-11-11_create_valoracion_secciones.sql
+      - name: Probar inserción y actualización de una sección
+        run: |
+          mysql -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor <<'SQL'
+          INSERT INTO usuarios (nombre, correo, contrasena_hash, rol)
+          VALUES ('Usuario de prueba', 'ci-svam@example.test', 'hash-de-prueba', 'estudiante');
+          SET @usuario_id = LAST_INSERT_ID();
+          INSERT INTO valoraciones (usuario_id, completada) VALUES (@usuario_id, 0);
+          SET @valoracion_id = LAST_INSERT_ID();
+          INSERT INTO valoracion_secciones (valoracion_id, seccion, payload)
+          VALUES (@valoracion_id, 5, JSON_OBJECT('mmse0', '1'))
+          ON DUPLICATE KEY UPDATE payload=VALUES(payload);
+          INSERT INTO valoracion_secciones (valoracion_id, seccion, payload)
+          VALUES (@valoracion_id, 5, JSON_OBJECT('mmse0', '0'))
+          ON DUPLICATE KEY UPDATE payload=VALUES(payload);
+          SELECT CASE
+            WHEN COUNT(*)=1 AND MAX(JSON_UNQUOTE(JSON_EXTRACT(payload, '$.mmse0')))='0'
+            THEN 'OK' ELSE 'ERROR' END AS resultado
+          FROM valoracion_secciones WHERE valoracion_id=@valoracion_id AND seccion=5;
+          SQL
+      - name: Verificar tabla, índice único y llave foránea
+        run: |
+          test "$(mysql -N -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='valoracion_adulto_mayor' AND table_name='valoracion_secciones'")" = "1"
+          test "$(mysql -N -h 127.0.0.1 -uroot -psvam_test_password valoracion_adulto_mayor -e "SELECT COUNT(*) FROM information_schema.statistics WHERE table_schema='valoracion_adulto_mayor' AND table_name='valoracion_secciones' AND index_name='uq_valoracion_seccion'")" = "2"

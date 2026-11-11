@@ -854,8 +854,8 @@ function renderTabla(lista) {
 
     return '<tr>' +
       '<td>#V-' + String(v.id).padStart(4, '0') + '</td>' +
-      '<td>' + (v.estudianteNombre || '—') + '</td>' +
-      '<td>' + (v.nombrePaciente || 'Sin nombre') + '</td>' +
+      '<td>' + escHtml(v.estudianteNombre || '—') + '</td>' +
+      '<td>' + escHtml(v.nombrePaciente || 'Sin nombre') + '</td>' +
       '<td>' + formatearFecha(v.fechaRegistro) + '</td>' +
       '<td>' + estadoBadge + '</td>' +
       '<td>' + retro + '</td>' +
@@ -921,6 +921,16 @@ async function guardarRetro() {
 
 function cerrarSesion() {
   window.location.href = '../api/logout';
+}
+
+function escHtml(valor) {
+  return String(valor).replace(/[&<>"']/g, function(caracter) {
+    if (caracter === '&') return '&amp;';
+    if (caracter === '<') return '&lt;';
+    if (caracter === '>') return '&gt;';
+    if (caracter === '"') return '&quot;';
+    return '&#39;';
+  });
 }
 
 function formatearFecha(ts) {

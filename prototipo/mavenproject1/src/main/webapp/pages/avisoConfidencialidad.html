@@ -316,7 +316,7 @@
     </div>
 
     <div class="header-right">
-      <button class="btn-cerrar" onclick="mostrar('dashboard')">
+      <button class="btn-cerrar" onclick="volverDashboard()">
         ← Regresar
       </button>
     </div>
@@ -369,7 +369,7 @@
 
       <div class="form-acciones">
 
-        <button class="btn-secondary" onclick="navegar('dashboard')">
+        <button class="btn-secondary" onclick="volverDashboard()">
           Cancelar
         </button>
 
@@ -389,6 +389,13 @@
   </div>
 
 </div>
+
+<script>
+function volverDashboard() {
+  var rol = sessionStorage.getItem('usuarioRol');
+  window.location.href = rol === 'maestro' ? 'dashboard-maestro.html' : 'dashboard-estudiante.html';
+}
+</script>
 
 </body>
 </html>

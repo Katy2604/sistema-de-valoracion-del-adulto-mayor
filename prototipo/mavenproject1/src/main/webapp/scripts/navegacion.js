@@ -22,8 +22,12 @@ var guardandoSeccion = false;
 var cargandoInicial = false; // Evita doble clic
 
 async function cambiarSeccion(n) {
-  // Si está avanzando (no retrocediendo), guarda primero
+  // Solo se permiten las siete secciones existentes.
+  if (!Number.isInteger(n) || n < 0 || n >= totalSecciones) return;
+
+  // Evitar que un doble clic permita saltar el guardado en curso.
   var avanzando = n > seccionActual;
+  if (avanzando && guardandoSeccion) return;
 
   if (avanzando && !guardandoSeccion && !cargandoInicial && sessionStorage.getItem('modoLectura') !== 'true') {
     guardandoSeccion = true;
@@ -35,15 +39,17 @@ async function cambiarSeccion(n) {
       btnSig.textContent = 'Guardando...';
     }
 
-    await guardarSeccion(seccionActual);
+    var guardado = await guardarSeccion(seccionActual);
 
-    // Restaurar botón
+    // Restaurar botón incluso si el guardado falla.
     if (btnSig) {
-      btnSig.disabled    = false;
-      btnSig.textContent = seccionActual === 5 ? 'Siguiente →' : 'Siguiente →';
+      btnSig.disabled = false;
+      btnSig.textContent = 'Siguiente →';
     }
-
     guardandoSeccion = false;
+
+    // Nunca avanzar si el servidor no confirmó la persistencia.
+    if (!guardado) return;
   }
 
   // Ocultar sección actual
