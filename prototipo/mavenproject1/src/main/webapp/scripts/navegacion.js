@@ -35,15 +35,17 @@ async function cambiarSeccion(n) {
       btnSig.textContent = 'Guardando...';
     }
 
-    await guardarSeccion(seccionActual);
+    var guardado = await guardarSeccion(seccionActual);
 
-    // Restaurar botón
+    // Restaurar botón incluso si el guardado falla.
     if (btnSig) {
-      btnSig.disabled    = false;
-      btnSig.textContent = seccionActual === 5 ? 'Siguiente →' : 'Siguiente →';
+      btnSig.disabled = false;
+      btnSig.textContent = 'Siguiente →';
     }
-
     guardandoSeccion = false;
+
+    // Nunca avanzar si el servidor no confirmó la persistencia.
+    if (!guardado) return;
   }
 
   // Ocultar sección actual
